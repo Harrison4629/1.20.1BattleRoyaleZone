@@ -5,10 +5,8 @@ import java.util.Arrays;
 import java.util.List;
 
 public class ModConfigs {
-
     public static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
     public static final ForgeConfigSpec SPEC;
-
 
     public static final ForgeConfigSpec.ConfigValue<Integer> iniZoneSize;
     public static final ForgeConfigSpec.ConfigValue<List<? extends Integer>> zoneSizes;
