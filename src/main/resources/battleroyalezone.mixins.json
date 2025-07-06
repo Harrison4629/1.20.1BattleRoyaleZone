@@ -5,6 +5,8 @@
   "compatibilityLevel": "JAVA_8",
   "refmap": "battleroyalezone.refmap.json",
   "mixins": [
+    "LivingEntityMixin",
+    "WorldBorderMixin"
   ],
   "client": [
   ],

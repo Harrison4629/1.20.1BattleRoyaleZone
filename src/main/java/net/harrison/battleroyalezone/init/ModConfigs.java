@@ -23,7 +23,7 @@ public class ModConfigs {
 
         zoneSizes = BUILDER.comment("每个阶段安全区的大小 (从左到右递减)")
                 .defineListAllowEmpty("ZoneSizes",
-                        () -> Arrays.asList(400, 250, 150, 80, 40, 10),
+                        () -> Arrays.asList(400, 250, 150, 80, 40, 1),
                         obj -> obj instanceof Integer && (Integer)obj >= 1);
 
         zoneWarningTicks = BUILDER.comment("每个阶段安全区收缩前的警告时间 (刻，20刻=1秒)")
