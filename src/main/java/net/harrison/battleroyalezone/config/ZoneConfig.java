@@ -12,9 +12,18 @@ public class ZoneConfig {
         return ModConfigs.iniZoneSize.get();
     }
 
+    public static double getIniZoneDamage() {
+        return ModConfigs.iniZoneDamage.get();
+    }
+
     public static int getZoneSize(int stage) {
         List<? extends Integer> ZONE_SIZES = ModConfigs.zoneSizes.get();
         return ZONE_SIZES.get(stage);
+    }
+
+    public static double getZoneDamage(int stage) {
+        List<? extends Double> ZONE_DAMAGE = ModConfigs.zoneDamage.get();
+        return ZONE_DAMAGE.get(stage);
     }
 
     public static int getWarningTick(int stage) {
@@ -36,6 +45,7 @@ public class ZoneConfig {
         List<? extends Integer> ZONE_SIZES = ModConfigs.zoneSizes.get();
         List<? extends Integer> ZONE_WARNING_TICKS = ModConfigs.zoneWarningTicks.get();
         List<? extends Integer> ZONE_SHRINK_TICKS = ModConfigs.zoneShrinkTicks.get();
+        List<? extends Double> ZONE_DAMAGE = ModConfigs.zoneDamage.get();
 
         StringBuilder string = new StringBuilder();
 
@@ -46,6 +56,11 @@ public class ZoneConfig {
         for (int i = 0; i < ZONE_SIZES.size(); i++) {
             string.append("§7- 第").append(i+1).append("圈大小: §e")
                     .append(ZONE_SIZES.get(i)).append("方块\n");
+        }
+        string.append("\n");
+        for (int i = 0; i < ZONE_DAMAGE.size(); i++) {
+            string.append("§7- 第").append(i+1).append("圈伤害: §e")
+                    .append(ZONE_DAMAGE.get(i)).append("点每半秒\n");
         }
         string.append("\n");
         for (int i = 0; i < ZONE_WARNING_TICKS.size(); i++) {
