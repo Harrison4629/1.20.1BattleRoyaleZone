@@ -29,6 +29,7 @@ public class Battleroyalezone {
 
     public static final String MODID = "battleroyalezone";
 
+    @SuppressWarnings("removal")
     public Battleroyalezone() {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
 

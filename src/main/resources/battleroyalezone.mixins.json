@@ -6,7 +6,9 @@
   "refmap": "battleroyalezone.refmap.json",
   "mixins": [
     "LivingEntityMixin",
-    "WorldBorderMixin"
+    "WorldBorderMixin",
+    "MapItemMixin",
+    "MapItemSavedDataMixin"
   ],
   "client": [
   ],

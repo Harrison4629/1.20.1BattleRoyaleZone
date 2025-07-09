@@ -74,6 +74,5 @@ public class ZoneConfig {
         }
 
         return string.toString();
-
     }
 }

@@ -103,8 +103,9 @@ public class ZoneStagePublisherEvent {
             SHRINKINGLeftTicks--;
         } else {
             currentState = ZoneStateEnum.IDLE;
-            SHRINKINGLeftTicks = ZoneConfig.getShrinkTick(Math.min(stage + 1, ZoneConfig.getMaxStage() - 1));
+            //SHRINKINGLeftTicks = ZoneConfig.getShrinkTick(Math.min(stage + 1, ZoneConfig.getMaxStage() - 1));
             stage++;
+            SHRINKINGLeftTicks = ZoneConfig.getShrinkTick(stage);
         }
     }
 
