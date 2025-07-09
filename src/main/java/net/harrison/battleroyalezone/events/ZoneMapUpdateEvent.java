@@ -30,14 +30,14 @@ public class ZoneMapUpdateEvent {
             return;
         }
 
-        ZoneStateEnum state =  event.getState();
+        ZoneStateEnum state = event.getState();
 
         switch (state) {
             case IDLE:
+                upDateIniZoneMap(event);
                 break;
 
             case WARNING:
-                upDateIniZoneMap(event);
                 break;
 
             case SHRINKING:
@@ -52,16 +52,16 @@ public class ZoneMapUpdateEvent {
     private static void upDateIniZoneMap(ZoneStageEvent event) {
         if (event.getStage() == 0) {
             MapConfig.zoneCenter = event.getZoneCenter();
-            MapConfig.zoneLength = ZoneConfig.getIniZoneSize();
+            MapConfig.zoneLength = ZoneConfig.getZoneSize(-1);
         }
     }
 
     private static void upDateShrinkingZoneMap(ZoneStageEvent event) {
-        int preZoneLength = event.getStage() > 0 ? ZoneConfig.getZoneSize(event.getStage() - 1) : ZoneConfig.getIniZoneSize();
+        int preZoneLength = ZoneConfig.getZoneSize(event.getStage() - 1);
         int futureZoneLength = ZoneConfig.getZoneSize(event.getStage());
         MapConfig.zoneLength = futureZoneLength + (preZoneLength - futureZoneLength) * event.getStateLeftTicks() / (ZoneConfig.getShrinkTick(event.getStage()));
+        MapConfig.zoneCenter = event.getNowCenter();
     }
-
 
     @SubscribeEvent
     public static void onPlayerTick(TickEvent.PlayerTickEvent event) {

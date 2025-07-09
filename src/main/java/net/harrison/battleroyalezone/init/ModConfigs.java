@@ -21,29 +21,29 @@ public class ModConfigs {
 
 
         iniZoneSize = BUILDER.comment("游戏开始时的圈大小(应能包住整个地图)")
-                .define("initial ZoneSize", 600);
+                .define("initial ZoneSize", 1000);
 
         iniZoneDamage = BUILDER.comment("游戏开始时的圈伤害(每半秒伤害)")
                 .define("initial ZoneDamage", 0.1);
 
         zoneSizes = BUILDER.comment("每个阶段安全区的大小")
                 .defineListAllowEmpty("ZoneSizes",
-                        () -> Arrays.asList(400, 250, 150, 80, 40, 1),
+                        () -> Arrays.asList(400, 180, 80, 40, 20, 10, 5, 1),
                         obj -> obj instanceof Integer && (Integer)obj >= 1);
 
         zoneDamage = BUILDER.comment("每个阶段安全区的伤害")
                 .defineListAllowEmpty("ZoneDamage",
-                        () -> Arrays.asList(0.2, 0.4, 0.7, 1.0, 1.2, 1.4),
+                        () -> Arrays.asList(0.1, 0.3, 0.4, 0.5, 0.6, 0.9, 1.2, 1.4),
                         obj -> obj instanceof Double);
 
         zoneWarningTicks = BUILDER.comment("每个阶段安全区收缩前的警告时间 (刻，20刻=1秒)")
                 .defineListAllowEmpty("ZoneWarningTicks",
-                        () -> Arrays.asList(1200, 1200, 1200, 900, 600, 400),
+                        () -> Arrays.asList(1350, 900, 650, 600, 500, 450, 350, 300),
                         obj -> obj instanceof Integer && (Integer)obj >= 0);
 
         zoneShrinkTicks = BUILDER.comment("每个阶段安全区收缩所需的时间 (刻，20刻=1秒)")
                 .defineListAllowEmpty("ZoneShrinkTicks",
-                        () -> Arrays.asList(2400, 2400, 1800, 1200, 600, 400),
+                        () -> Arrays.asList(1500, 600, 450, 300, 300, 150, 150, 150),
                         obj -> obj instanceof Integer && (Integer)obj >= 0);
 
         BUILDER.pop();

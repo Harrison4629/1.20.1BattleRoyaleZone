@@ -8,32 +8,32 @@ public class ZoneConfig {
 
     private static final int tick = 20;
 
-    public static int getIniZoneSize() {
+    private static int getIniZoneSize() {
         return ModConfigs.iniZoneSize.get();
     }
 
-    public static double getIniZoneDamage() {
+    private static double getIniZoneDamage() {
         return ModConfigs.iniZoneDamage.get();
     }
 
     public static int getZoneSize(int stage) {
         List<? extends Integer> ZONE_SIZES = ModConfigs.zoneSizes.get();
-        return ZONE_SIZES.get(stage);
+        return stage >= 0 ? ZONE_SIZES.get(stage) : getIniZoneSize();
     }
 
     public static double getZoneDamage(int stage) {
         List<? extends Double> ZONE_DAMAGE = ModConfigs.zoneDamage.get();
-        return ZONE_DAMAGE.get(stage);
+        return stage >= 0 ? ZONE_DAMAGE.get(stage) : getIniZoneDamage();
     }
 
     public static int getWarningTick(int stage) {
         List<? extends Integer> ZONE_WARNING_TICKS = ModConfigs.zoneWarningTicks.get();
-        return ZONE_WARNING_TICKS.get(stage);
+        return stage < getMaxStage() ? ZONE_WARNING_TICKS.get(stage) : 114514;
     }
 
     public static int getShrinkTick(int stage) {
         List<? extends Integer> ZONE_SHRINK_TICKS = ModConfigs.zoneShrinkTicks.get();
-        return ZONE_SHRINK_TICKS.get(stage);
+        return stage < getMaxStage() ? ZONE_SHRINK_TICKS.get(stage) : 114514;
     }
 
     public static int getMaxStage() {

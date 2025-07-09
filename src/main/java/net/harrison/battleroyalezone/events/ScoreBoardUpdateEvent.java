@@ -23,9 +23,24 @@ public class ScoreBoardUpdateEvent {
 
     @SubscribeEvent
     public static void onZoneStage(ZoneStageEvent event) {
+
+        if (!(event.getStateLeftTicks() % 20 == 0)) {
+            return;
+        }
         if (event.getServer() == null) {
             return;
         }
+
+        if (!event.getRunningState()) {
+            resetScore(event);
+            return;
+        }
+
+        if (event.getState() == ZoneStateEnum.IDLE && event.getStage() == ZoneConfig.getMaxStage()) {
+            clearScore(event);
+            return;
+        }
+
 
         Scoreboard scoreboard = event.getServer().getScoreboard();
 
@@ -40,15 +55,6 @@ public class ScoreBoardUpdateEvent {
         Score decorate = scoreboard.getOrCreatePlayerScore("----------", objective);
         decorate.setScore(0);
 
-        if (!event.getRunningState()) {
-            resetScore(event);
-            return;
-        }
-
-        if (event.getState() == ZoneStateEnum.IDLE && event.getStage() == ZoneConfig.getMaxStage()) {
-            clearScore(event);
-            return;
-        }
 
 
 

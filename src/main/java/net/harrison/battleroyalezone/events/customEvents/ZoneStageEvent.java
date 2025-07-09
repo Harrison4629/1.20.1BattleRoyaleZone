@@ -1,5 +1,6 @@
 package net.harrison.battleroyalezone.events.customEvents;
 
+import net.harrison.battleroyalezone.config.ZoneConfig;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.eventbus.api.Event;
@@ -11,11 +12,13 @@ public class ZoneStageEvent extends Event {
     private final int stage;
     private final int StateLeftTicks;
     private final boolean running;
+    private final Vec3 offsetCenter;
 
     public ZoneStageEvent(MinecraftServer server, boolean running, Vec3 zoneCenter,
-                          int stage, ZoneStateEnum state, int StateLeftTicks) {
+                          Vec3 offsetCenter, int stage, ZoneStateEnum state, int StateLeftTicks) {
         this.running = running;
         this.zoneCenter = zoneCenter;
+        this.offsetCenter = offsetCenter;
         this.stage = stage;
         this.state = state;
         this.StateLeftTicks = StateLeftTicks;
@@ -44,5 +47,22 @@ public class ZoneStageEvent extends Event {
 
     public boolean getRunningState() {
         return this.running;
+    }
+
+    public Vec3 getOffsetCenter() {
+        return this.offsetCenter;
+    }
+
+    public Vec3 getNowCenter() {
+
+        double factor = (double) getStateLeftTicks() / ZoneConfig.getShrinkTick(getStage());
+
+        return getOffsetCenter().add(getZoneCenter().add(getOffsetCenter().multiply(-1, -1, -1)).multiply(factor, factor, factor));
+
+        //return new Vec3(
+        //        getOffsetCenter().x - (getOffsetCenter().x - getZoneCenter().x) * getStateLeftTicks() / ZoneConfig.getShrinkTick(getStage()),
+        //        0,
+        //        getOffsetCenter().z - (getOffsetCenter().z - getZoneCenter().z) * getStateLeftTicks() / ZoneConfig.getShrinkTick(getStage())
+        //);
     }
 }

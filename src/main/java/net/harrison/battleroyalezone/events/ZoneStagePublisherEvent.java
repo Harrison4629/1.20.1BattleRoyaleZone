@@ -1,10 +1,12 @@
 package net.harrison.battleroyalezone.events;
 
+import net.harrison.basicdevtool.math.RandomNumSummoner;
 import net.harrison.battleroyalezone.Battleroyalezone;
 import net.harrison.battleroyalezone.config.ZoneConfig;
 import net.harrison.battleroyalezone.events.customEvents.ZoneStageEvent;
 import net.harrison.battleroyalezone.events.customEvents.ZoneStateEnum;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.MinecraftForge;
@@ -19,6 +21,7 @@ public class ZoneStagePublisherEvent {
     private static MinecraftServer serverInstance;
 
     private static Vec3 zoneCenter;
+    private static Vec3 offsetCenter;
     private static int stage;
     private static boolean isRunning = false;
 
@@ -55,22 +58,16 @@ public class ZoneStagePublisherEvent {
                     break;
             }
         } else {
-            handleZoneStageOver();
+            handleFinalZone();
         }
     }
 
-    private static void handleZoneStageOver() {
-        stage = ZoneConfig.getMaxStage();
-        currentState = ZoneStateEnum.IDLE;
-        MinecraftForge.EVENT_BUS.post(new ZoneStageEvent(serverInstance, isRunning, zoneCenter, stage, currentState, 0));
-    }
 
     private static void handleIDLETicks(TickEvent.ServerTickEvent event) {
         if (IDLELeftTicks >= 0 ) {
 
-            if (IDLELeftTicks %20 == 0) {
-                MinecraftForge.EVENT_BUS.post(new ZoneStageEvent(serverInstance, isRunning, zoneCenter, stage, currentState, IDLELeftTicks));
-            }
+            MinecraftForge.EVENT_BUS.post(new ZoneStageEvent(serverInstance, isRunning, zoneCenter, offsetCenter, stage, currentState, IDLELeftTicks));
+
 
             IDLELeftTicks--;
         } else {
@@ -82,52 +79,65 @@ public class ZoneStagePublisherEvent {
     private static void handleWARNINGTicks(TickEvent.ServerTickEvent event) {
         if (WARNINGLeftTicks >= 0 ) {
 
-            if (WARNINGLeftTicks %20 == 0) {
-                MinecraftForge.EVENT_BUS.post(new ZoneStageEvent(serverInstance, isRunning, zoneCenter, stage, currentState, WARNINGLeftTicks));
-            }
+            MinecraftForge.EVENT_BUS.post(new ZoneStageEvent(serverInstance, isRunning, zoneCenter, offsetCenter, stage, currentState, WARNINGLeftTicks));
 
             WARNINGLeftTicks--;
         } else {
             currentState = ZoneStateEnum.SHRINKING;
-            WARNINGLeftTicks = ZoneConfig.getWarningTick(Math.min(stage + 1, ZoneConfig.getMaxStage() - 1));
+            WARNINGLeftTicks = ZoneConfig.getWarningTick(stage + 1);
+            summonOffestCenter(zoneCenter, stage);
+
         }
     }
 
     private static void handleSHRINKINGTicks(TickEvent.ServerTickEvent event) {
         if (SHRINKINGLeftTicks >= 0) {
 
-            if (SHRINKINGLeftTicks % 20 == 0) {
-                MinecraftForge.EVENT_BUS.post(new ZoneStageEvent(serverInstance, isRunning, zoneCenter, stage, currentState, SHRINKINGLeftTicks));
-            }
+            MinecraftForge.EVENT_BUS.post(new ZoneStageEvent(serverInstance, isRunning, zoneCenter, offsetCenter, stage, currentState, SHRINKINGLeftTicks));
 
             SHRINKINGLeftTicks--;
         } else {
             currentState = ZoneStateEnum.IDLE;
-            //SHRINKINGLeftTicks = ZoneConfig.getShrinkTick(Math.min(stage + 1, ZoneConfig.getMaxStage() - 1));
             stage++;
             SHRINKINGLeftTicks = ZoneConfig.getShrinkTick(stage);
+            zoneCenter = offsetCenter;
         }
     }
 
     public static void startZoneSystem(CommandSourceStack source) {
-
         serverInstance = source.getServer();
 
-        zoneCenter = source.getPosition();
         stage = 0;
+
+        zoneCenter = source.getPosition();
+        summonOffestCenter(zoneCenter, stage);
 
         WARNINGLeftTicks = ZoneConfig.getWarningTick(stage);
         SHRINKINGLeftTicks = ZoneConfig.getShrinkTick(stage);
 
-        currentState = ZoneStateEnum.WARNING;
         isRunning = true;
     }
 
     public static void stopZoneSystem() {
-        handleZoneStageOver();
+        handleFinalZone();
         isRunning = false;
-        MinecraftForge.EVENT_BUS.post(new ZoneStageEvent(serverInstance, isRunning, zoneCenter, stage, currentState, 0));
+        MinecraftForge.EVENT_BUS.post(new ZoneStageEvent(serverInstance, isRunning, zoneCenter, offsetCenter, stage, currentState, 0));
     }
 
+    private static void handleFinalZone() {
+        stage = ZoneConfig.getMaxStage();
+        currentState = ZoneStateEnum.IDLE;
+        MinecraftForge.EVENT_BUS.post(new ZoneStageEvent(serverInstance, isRunning, zoneCenter, offsetCenter, stage, currentState, 0));
+    }
 
+    private static void summonOffestCenter(Vec3 zoneCenter, int stage) {
+
+        double offsetMax = (ZoneConfig.getZoneSize(stage - 1) - ZoneConfig.getZoneSize(stage)) / 2.0;
+
+        double offsetX =  RandomNumSummoner.randomDoubleBetween(zoneCenter.x - offsetMax, zoneCenter.x + offsetMax);
+        double offsetZ =  RandomNumSummoner.randomDoubleBetween(zoneCenter.z - offsetMax, zoneCenter.z + offsetMax);
+
+        offsetCenter = new Vec3(offsetX, 0, offsetZ);
+
+    }
 }

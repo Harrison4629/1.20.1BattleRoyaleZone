@@ -47,7 +47,7 @@ public class ZoneDamageUpdateEvent {
         if (event.getStage() != 0) {
             return;
         }
-        event.getServer().overworld().getWorldBorder().setDamagePerBlock(ZoneConfig.getIniZoneDamage());
+        event.getServer().overworld().getWorldBorder().setDamagePerBlock(ZoneConfig.getZoneDamage(-1));
     }
 
     private static void handleWorldBorderDamage(ZoneStageEvent event) {

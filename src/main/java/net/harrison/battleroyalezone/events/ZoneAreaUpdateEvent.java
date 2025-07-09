@@ -10,7 +10,7 @@ import net.minecraftforge.fml.common.Mod;
 @Mod.EventBusSubscriber(modid = Battleroyalezone.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class ZoneAreaUpdateEvent {
 
-    private static boolean hasShrinked = false;
+    private static boolean hasShrunk = false;
 
     @SubscribeEvent
     public static void onZoneStage(ZoneStageEvent event) {
@@ -18,10 +18,7 @@ public class ZoneAreaUpdateEvent {
             return;
         }
 
-        ZoneStateEnum state =  event.getState();
-        double centerX = event.getZoneCenter().x;
-        double centerZ = event.getZoneCenter().z;
-
+        ZoneStateEnum state = event.getState();
         if (!event.getRunningState()){
             resetWorldBorder(event);
             return;
@@ -30,15 +27,15 @@ public class ZoneAreaUpdateEvent {
         switch (state) {
 
             case IDLE:
-                hasShrinked = false;
+                hasShrunk = false;
+                setInitWorldBorder(event);
                 break;
 
             case WARNING:
-                handleInitWorldBorder(centerX, centerZ, event);
                 break;
 
             case SHRINKING:
-                handleWorldBorder(centerX, centerZ, event);
+                setWorldBorder(event);
                 break;
 
             default:
@@ -50,31 +47,31 @@ public class ZoneAreaUpdateEvent {
         event.getServer().overworld().getWorldBorder().setSize(59999968);
     }
 
-    private static void handleInitWorldBorder(double centerX, double centerZ, ZoneStageEvent event) {
-
+    private static void setInitWorldBorder(ZoneStageEvent event) {
         if (event.getStage() != 0) {
             return;
         }
-        event.getServer().overworld().getWorldBorder().setCenter(centerX, centerZ);
-        event.getServer().overworld().getWorldBorder().setSize(ZoneConfig.getIniZoneSize());
+        event.getServer().overworld().getWorldBorder().setCenter(event.getZoneCenter().x, event.getZoneCenter().z);
+        event.getServer().overworld().getWorldBorder().setSize(ZoneConfig.getZoneSize(-1));
     }
 
-    private static void handleWorldBorder(double centerX, double centerZ, ZoneStageEvent event) {
-        if (hasShrinked) {
+    private static void setWorldBorder(ZoneStageEvent event) {
+
+        //double centerX = event.getOffsetCenter().x -
+        //        (event.getOffsetCenter().x - event.getZoneCenter().x) * event.getStateLeftTicks() / ZoneConfig.getShrinkTick(event.getStage());
+        //double centerZ = event.getOffsetCenter().z -
+        //        (event.getOffsetCenter().z - event.getZoneCenter().z) * event.getStateLeftTicks() / ZoneConfig.getShrinkTick(event.getStage());;
+
+        event.getServer().overworld().getWorldBorder().setCenter(event.getNowCenter().x, event.getNowCenter().z);
+
+        if (hasShrunk) {
             return;
         }
 
-        event.getServer().overworld().getWorldBorder().setCenter(centerX, centerZ);
+        event.getServer().overworld().getWorldBorder().lerpSizeBetween(ZoneConfig.getZoneSize(event.getStage() - 1),
+                ZoneConfig.getZoneSize(Math.min(event.getStage(), ZoneConfig.getMaxStage() - 1)),
+                ZoneConfig.getShrinkTick(event.getStage()) * 50L);
 
-        if (event.getStage() == 0) {
-            event.getServer().overworld().getWorldBorder().lerpSizeBetween(ZoneConfig.getIniZoneSize(),
-                    ZoneConfig.getZoneSize(0),
-                    ZoneConfig.getShrinkTick(event.getStage()) * 50L);
-        } else {
-            event.getServer().overworld().getWorldBorder().lerpSizeBetween(ZoneConfig.getZoneSize(event.getStage() - 1),
-                    ZoneConfig.getZoneSize(Math.min(event.getStage(), ZoneConfig.getMaxStage() - 1)),
-                    ZoneConfig.getShrinkTick(event.getStage()) * 50L);
-        }
-        hasShrinked = true;
+        hasShrunk = true;
     }
 }
