@@ -73,6 +73,7 @@ public class ZoneStagePublisherEvent {
         } else {
             currentState = ZoneStateEnum.WARNING;
             IDLELeftTicks = (int) ((Math.random() * 10) + 11) * 20;
+            summonOffestCenter(zoneCenter, stage);
         }
     }
 
@@ -85,8 +86,6 @@ public class ZoneStagePublisherEvent {
         } else {
             currentState = ZoneStateEnum.SHRINKING;
             WARNINGLeftTicks = ZoneConfig.getWarningTick(stage + 1);
-            summonOffestCenter(zoneCenter, stage);
-
         }
     }
 
@@ -109,8 +108,9 @@ public class ZoneStagePublisherEvent {
 
         stage = 0;
 
+        currentState = ZoneStateEnum.IDLE;
+
         zoneCenter = source.getPosition();
-        summonOffestCenter(zoneCenter, stage);
 
         WARNINGLeftTicks = ZoneConfig.getWarningTick(stage);
         SHRINKINGLeftTicks = ZoneConfig.getShrinkTick(stage);
@@ -137,7 +137,7 @@ public class ZoneStagePublisherEvent {
         double offsetX =  RandomNumSummoner.randomDoubleBetween(zoneCenter.x - offsetMax, zoneCenter.x + offsetMax);
         double offsetZ =  RandomNumSummoner.randomDoubleBetween(zoneCenter.z - offsetMax, zoneCenter.z + offsetMax);
 
-        offsetCenter = new Vec3(offsetX, 0, offsetZ);
+        offsetCenter = new Vec3(offsetX, zoneCenter.y, offsetZ);
 
     }
 }

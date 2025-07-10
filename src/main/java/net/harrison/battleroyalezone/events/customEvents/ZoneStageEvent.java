@@ -53,16 +53,20 @@ public class ZoneStageEvent extends Event {
         return this.offsetCenter;
     }
 
-    public Vec3 getNowCenter() {
+    public Vec3 getCurrentCenter() {
+        return new Vec3(
+                getOffsetCenter().x - (getOffsetCenter().x - getZoneCenter().x) * getStateLeftTicks() / ZoneConfig.getShrinkTick(getStage()),
+                getZoneCenter().y,
+                getOffsetCenter().z - (getOffsetCenter().z - getZoneCenter().z) * getStateLeftTicks() / ZoneConfig.getShrinkTick(getStage())
+        );
+    }
 
-        double factor = (double) getStateLeftTicks() / ZoneConfig.getShrinkTick(getStage());
+    public int getFutureZoneSize() {
+        return ZoneConfig.getZoneSize(stage);
+    }
 
-        return getOffsetCenter().add(getZoneCenter().add(getOffsetCenter().multiply(-1, -1, -1)).multiply(factor, factor, factor));
-
-        //return new Vec3(
-        //        getOffsetCenter().x - (getOffsetCenter().x - getZoneCenter().x) * getStateLeftTicks() / ZoneConfig.getShrinkTick(getStage()),
-        //        0,
-        //        getOffsetCenter().z - (getOffsetCenter().z - getZoneCenter().z) * getStateLeftTicks() / ZoneConfig.getShrinkTick(getStage())
-        //);
+    public int getCurrentZoneSize() {
+        return ZoneConfig.getZoneSize(stage) + (ZoneConfig.getZoneSize(stage - 1) - ZoneConfig.getZoneSize(stage))
+                * getStateLeftTicks() / ZoneConfig.getShrinkTick(stage);
     }
 }

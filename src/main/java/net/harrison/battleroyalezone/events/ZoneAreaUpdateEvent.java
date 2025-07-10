@@ -62,7 +62,7 @@ public class ZoneAreaUpdateEvent {
         //double centerZ = event.getOffsetCenter().z -
         //        (event.getOffsetCenter().z - event.getZoneCenter().z) * event.getStateLeftTicks() / ZoneConfig.getShrinkTick(event.getStage());;
 
-        event.getServer().overworld().getWorldBorder().setCenter(event.getNowCenter().x, event.getNowCenter().z);
+        event.getServer().overworld().getWorldBorder().setCenter(event.getCurrentCenter().x, event.getCurrentCenter().z);
 
         if (hasShrunk) {
             return;

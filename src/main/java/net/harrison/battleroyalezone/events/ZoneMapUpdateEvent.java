@@ -57,15 +57,16 @@ public class ZoneMapUpdateEvent {
     }
 
     private static void upDateShrinkingZoneMap(ZoneStageEvent event) {
-        int preZoneLength = ZoneConfig.getZoneSize(event.getStage() - 1);
-        int futureZoneLength = ZoneConfig.getZoneSize(event.getStage());
-        MapConfig.zoneLength = futureZoneLength + (preZoneLength - futureZoneLength) * event.getStateLeftTicks() / (ZoneConfig.getShrinkTick(event.getStage()));
-        MapConfig.zoneCenter = event.getNowCenter();
+        //int preZoneLength = ZoneConfig.getZoneSize(event.getStage() - 1);
+        //int futureZoneLength = ZoneConfig.getZoneSize(event.getStage());
+        //MapConfig.zoneLength = futureZoneLength + (preZoneLength - futureZoneLength) * event.getStateLeftTicks() / (ZoneConfig.getShrinkTick(event.getStage()));
+        MapConfig.zoneLength = event.getCurrentZoneSize();
+        MapConfig.zoneCenter = event.getCurrentCenter();
     }
 
     @SubscribeEvent
     public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
-        if (event.phase == TickEvent.Phase.END && !event.player.level().isClientSide && event.player.tickCount % 20 == 0) {
+        if (event.phase == TickEvent.Phase.END && !event.player.level().isClientSide) {
             Player player = event.player;
             ItemStack heldItem = player.getMainHandItem();
             ItemStack lHeldItem = player.getOffhandItem();
