@@ -6,7 +6,6 @@ import net.harrison.battleroyalezone.config.ZoneConfig;
 import net.harrison.battleroyalezone.events.customEvents.ZoneStageEvent;
 import net.harrison.battleroyalezone.events.customEvents.ZoneStateEnum;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.MinecraftForge;
@@ -25,6 +24,8 @@ public class ZoneStagePublisherEvent {
     private static int stage;
     private static boolean isRunning = false;
 
+    private static boolean hasNewCenter = false;
+
     private static int IDLELeftTicks;
     private static int WARNINGLeftTicks;
     private static int SHRINKINGLeftTicks;
@@ -33,6 +34,7 @@ public class ZoneStagePublisherEvent {
 
     @SubscribeEvent
     public static void onServerTick(TickEvent.ServerTickEvent event) {
+
 
         if (event.phase == TickEvent.Phase.START || event.side == LogicalSide.CLIENT) {
             return;
@@ -43,19 +45,11 @@ public class ZoneStagePublisherEvent {
         }
 
         if (stage < ZoneConfig.getMaxStage()) {
-
             switch (currentState) {
-                case WARNING:
-                    handleWARNINGTicks(event);
-                    break;
-                case SHRINKING:
-                    handleSHRINKINGTicks(event);
-                    break;
-                case IDLE:
-                    handleIDLETicks(event);
-                    break;
-                default:
-                    break;
+                case IDLE -> handleIDLETicks(event);
+                case SHRINKING -> handleSHRINKINGTicks(event);
+                case WARNING -> handleWARNINGTicks(event);
+                default -> throw new UnsupportedOperationException("It should not happened!");
             }
         } else {
             handleFinalZone();
@@ -65,20 +59,23 @@ public class ZoneStagePublisherEvent {
 
     private static void handleIDLETicks(TickEvent.ServerTickEvent event) {
         if (IDLELeftTicks >= 0 ) {
+            if (!hasNewCenter) {
+                summonOffestCenter(zoneCenter, stage);
+                hasNewCenter = true;
+            }
 
             MinecraftForge.EVENT_BUS.post(new ZoneStageEvent(serverInstance, isRunning, zoneCenter, offsetCenter, stage, currentState, IDLELeftTicks));
-
 
             IDLELeftTicks--;
         } else {
             currentState = ZoneStateEnum.WARNING;
             IDLELeftTicks = (int) ((Math.random() * 10) + 11) * 20;
-            summonOffestCenter(zoneCenter, stage);
         }
     }
 
     private static void handleWARNINGTicks(TickEvent.ServerTickEvent event) {
         if (WARNINGLeftTicks >= 0 ) {
+            hasNewCenter = false;
 
             MinecraftForge.EVENT_BUS.post(new ZoneStageEvent(serverInstance, isRunning, zoneCenter, offsetCenter, stage, currentState, WARNINGLeftTicks));
 
@@ -112,6 +109,7 @@ public class ZoneStagePublisherEvent {
 
         zoneCenter = source.getPosition();
 
+        IDLELeftTicks = (int) ((Math.random() * 10) + 11) * 20;
         WARNINGLeftTicks = ZoneConfig.getWarningTick(stage);
         SHRINKINGLeftTicks = ZoneConfig.getShrinkTick(stage);
 
@@ -132,12 +130,11 @@ public class ZoneStagePublisherEvent {
 
     private static void summonOffestCenter(Vec3 zoneCenter, int stage) {
 
-        double offsetMax = (ZoneConfig.getZoneSize(stage - 1) - ZoneConfig.getZoneSize(stage)) / 2.0;
+        double offsetRadius = (ZoneConfig.getZoneSize(stage - 1) - ZoneConfig.getZoneSize(stage)) / 2.0;
 
-        double offsetX =  RandomNumSummoner.randomDoubleBetween(zoneCenter.x - offsetMax, zoneCenter.x + offsetMax);
-        double offsetZ =  RandomNumSummoner.randomDoubleBetween(zoneCenter.z - offsetMax, zoneCenter.z + offsetMax);
+        double offsetX =  RandomNumSummoner.randomDoubleBetween(zoneCenter.x - offsetRadius, zoneCenter.x + offsetRadius);
+        double offsetZ =  RandomNumSummoner.randomDoubleBetween(zoneCenter.z - offsetRadius, zoneCenter.z + offsetRadius);
 
         offsetCenter = new Vec3(offsetX, zoneCenter.y, offsetZ);
-
     }
 }

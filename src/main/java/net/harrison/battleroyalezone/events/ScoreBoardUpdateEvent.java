@@ -57,7 +57,6 @@ public class ScoreBoardUpdateEvent {
 
 
 
-
         ZoneStateEnum state =  event.getState();
 
         int Seconds = event.getStateLeftTicks() / 20;

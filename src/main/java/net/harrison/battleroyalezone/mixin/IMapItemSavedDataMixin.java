@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
 @Mixin(MapItemSavedData.class)
-public interface MapItemSavedDataMixin {
+public interface IMapItemSavedDataMixin {
     @Invoker("<init>")
     static MapItemSavedData create_Map_Data(int pX, int pZ, byte pScale, boolean pTrackingPosition, boolean pUnlimitedTracking, boolean pLocked, ResourceKey<Level> pDimension) {
         throw new AssertionError();

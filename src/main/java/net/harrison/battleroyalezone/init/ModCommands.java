@@ -1,6 +1,8 @@
 package net.harrison.battleroyalezone.init;
 
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.DoubleArgumentType;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import net.harrison.basicdevtool.init.ModMessages;
 import net.harrison.basicdevtool.networking.s2cpacket.PlaySoundToClientS2CPacket;
 import net.harrison.basicdevtool.util.DelayTask;
@@ -8,6 +10,7 @@ import net.harrison.battleroyalezone.config.ZoneConfig;
 import net.harrison.battleroyalezone.events.ZoneStagePublisherEvent;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.coordinates.Vec2Argument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.sounds.SoundEvents;
@@ -50,8 +53,41 @@ public class ModCommands {
                             return 1;
                         })
                 )
-
         );
 
+
+        dispatcher.register(Commands.literal("samplemap")
+                .requires(sourceStack -> sourceStack.hasPermission(2))
+                .then(Commands.argument("pos1", Vec2Argument.vec2())
+                        .then(Commands.argument("pos2", Vec2Argument.vec2())
+                                .executes(context -> {
+                                    final double x1 = Vec2Argument.getVec2(context, "pos1").x;
+                                    final double z1 = Vec2Argument.getVec2(context, "pos1").y;
+                                    final double x2 = Vec2Argument.getVec2(context, "pos2").x;
+                                    final double z2 = Vec2Argument.getVec2(context, "pos2").y;
+
+                                    MapSample mapSample = new MapSample();
+                                    mapSample.sample(context.getSource() ,x1, z1, x2, z2, Double.NEGATIVE_INFINITY);
+
+                                    return 1;
+                                })
+
+                                .then(Commands.argument("scanBeginHeight", DoubleArgumentType.doubleArg())
+                                        .executes(context -> {
+                                            final double x1 = Vec2Argument.getVec2(context, "pos1").x;
+                                            final double z1 = Vec2Argument.getVec2(context, "pos1").y;
+                                            final double x2 = Vec2Argument.getVec2(context, "pos2").x;
+                                            final double z2 = Vec2Argument.getVec2(context, "pos2").y;
+                                            final double height = DoubleArgumentType.getDouble(context, "scanBeginHeight");
+
+                                            MapSample mapSample = new MapSample();
+                                            mapSample.sample(context.getSource() ,x1, z1, x2, z2, height);
+
+                                            return 1;
+                                        })
+                                )
+                        )
+                )
+        );
     }
 }

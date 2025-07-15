@@ -5,10 +5,10 @@
   "compatibilityLevel": "JAVA_17",
   "refmap": "battleroyalezone.refmap.json",
   "mixins": [
+    "IMapItemSavedDataMixin",
     "LivingEntityMixin",
-    "WorldBorderMixin",
     "MapItemMixin",
-    "MapItemSavedDataMixin"
+    "WorldBorderMixin"
   ],
   "client": [
   ],

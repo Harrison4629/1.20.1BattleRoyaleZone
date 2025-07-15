@@ -62,11 +62,27 @@ public class ZoneStageEvent extends Event {
     }
 
     public int getFutureZoneSize() {
-        return ZoneConfig.getZoneSize(stage);
+        if (stage >= ZoneConfig.getMaxStage()) {
+            return ZoneConfig.getZoneSize(ZoneConfig.getMaxStage() - 1);
+        } else {
+            return ZoneConfig.getZoneSize(stage);
+        }
     }
 
     public int getCurrentZoneSize() {
-        return ZoneConfig.getZoneSize(stage) + (ZoneConfig.getZoneSize(stage - 1) - ZoneConfig.getZoneSize(stage))
-                * getStateLeftTicks() / ZoneConfig.getShrinkTick(stage);
+        if (stage >= ZoneConfig.getMaxStage()) {
+            return ZoneConfig.getZoneSize(ZoneConfig.getMaxStage() - 1);
+        } else {
+            switch (state) {
+                case IDLE, WARNING -> {
+                    return ZoneConfig.getZoneSize(stage - 1);
+                }
+                case SHRINKING -> {
+                    return ZoneConfig.getZoneSize(stage) + (ZoneConfig.getZoneSize(stage - 1) - ZoneConfig.getZoneSize(stage))
+                            * getStateLeftTicks() / ZoneConfig.getShrinkTick(stage);
+                }
+                default -> throw new UnsupportedOperationException("It should not happened!");
+            }
+        }
     }
 }
