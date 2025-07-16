@@ -55,8 +55,6 @@ public class ScoreBoardUpdateEvent {
         Score decorate = scoreboard.getOrCreatePlayerScore("----------", objective);
         decorate.setScore(0);
 
-
-
         ZoneStateEnum state =  event.getState();
 
         int Seconds = event.getStateLeftTicks() / 20;

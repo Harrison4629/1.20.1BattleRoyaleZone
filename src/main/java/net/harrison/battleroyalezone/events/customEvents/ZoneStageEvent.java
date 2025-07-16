@@ -10,18 +10,18 @@ public class ZoneStageEvent extends Event {
     private final Vec3 zoneCenter;
     private final ZoneStateEnum state;
     private final int stage;
-    private final int StateLeftTicks;
+    private final int stateLeftTicks;
     private final boolean running;
     private final Vec3 offsetCenter;
 
     public ZoneStageEvent(MinecraftServer server, boolean running, Vec3 zoneCenter,
-                          Vec3 offsetCenter, int stage, ZoneStateEnum state, int StateLeftTicks) {
+                          Vec3 offsetCenter, int stage, ZoneStateEnum state, int stateLeftTicks) {
         this.running = running;
         this.zoneCenter = zoneCenter;
         this.offsetCenter = offsetCenter;
         this.stage = stage;
         this.state = state;
-        this.StateLeftTicks = StateLeftTicks;
+        this.stateLeftTicks = stateLeftTicks;
         this.server = server;
     }
 
@@ -42,7 +42,7 @@ public class ZoneStageEvent extends Event {
     }
 
     public int getStateLeftTicks() {
-        return this.StateLeftTicks;
+        return this.stateLeftTicks;
     }
 
     public boolean getRunningState() {
@@ -54,14 +54,18 @@ public class ZoneStageEvent extends Event {
     }
 
     public Vec3 getCurrentCenter() {
-        return new Vec3(
-                getOffsetCenter().x - (getOffsetCenter().x - getZoneCenter().x) * getStateLeftTicks() / ZoneConfig.getShrinkTick(getStage()),
-                getZoneCenter().y,
-                getOffsetCenter().z - (getOffsetCenter().z - getZoneCenter().z) * getStateLeftTicks() / ZoneConfig.getShrinkTick(getStage())
-        );
+        if (state == ZoneStateEnum.IDLE || state == ZoneStateEnum.WARNING) {
+            return getZoneCenter();
+        } else {
+            return new Vec3(
+                    getOffsetCenter().x - (getOffsetCenter().x - getZoneCenter().x) * getStateLeftTicks() / ZoneConfig.getShrinkTick(getStage()),
+                    getZoneCenter().y,
+                    getOffsetCenter().z - (getOffsetCenter().z - getZoneCenter().z) * getStateLeftTicks() / ZoneConfig.getShrinkTick(getStage())
+            );
+        }
     }
 
-    public int getFutureZoneSize() {
+    public double getFutureZoneSize() {
         if (stage >= ZoneConfig.getMaxStage()) {
             return ZoneConfig.getZoneSize(ZoneConfig.getMaxStage() - 1);
         } else {
@@ -69,7 +73,7 @@ public class ZoneStageEvent extends Event {
         }
     }
 
-    public int getCurrentZoneSize() {
+    public double getCurrentZoneSize() {
         if (stage >= ZoneConfig.getMaxStage()) {
             return ZoneConfig.getZoneSize(ZoneConfig.getMaxStage() - 1);
         } else {
@@ -78,8 +82,8 @@ public class ZoneStageEvent extends Event {
                     return ZoneConfig.getZoneSize(stage - 1);
                 }
                 case SHRINKING -> {
-                    return ZoneConfig.getZoneSize(stage) + (ZoneConfig.getZoneSize(stage - 1) - ZoneConfig.getZoneSize(stage))
-                            * getStateLeftTicks() / ZoneConfig.getShrinkTick(stage);
+                    return ZoneConfig.getZoneSize(stage) + (double) ((ZoneConfig.getZoneSize(stage - 1) - ZoneConfig.getZoneSize(stage))
+                            * getStateLeftTicks()) / ZoneConfig.getShrinkTick(stage);
                 }
                 default -> throw new UnsupportedOperationException("It should not happened!");
             }

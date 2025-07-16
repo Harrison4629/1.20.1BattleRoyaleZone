@@ -52,7 +52,9 @@ public class ZoneStagePublisherEvent {
                 default -> throw new UnsupportedOperationException("It should not happened!");
             }
         } else {
-            handleFinalZone();
+            if (currentState != ZoneStateEnum.IDLE || stage != ZoneConfig.getMaxStage()) {
+                handleFinalZone();
+            }
         }
     }
 
@@ -105,11 +107,12 @@ public class ZoneStagePublisherEvent {
 
         stage = 0;
 
-        currentState = ZoneStateEnum.IDLE;
-
         zoneCenter = source.getPosition();
 
         IDLELeftTicks = (int) ((Math.random() * 10) + 11) * 20;
+
+        currentState = ZoneStateEnum.IDLE;
+
         WARNINGLeftTicks = ZoneConfig.getWarningTick(stage);
         SHRINKINGLeftTicks = ZoneConfig.getShrinkTick(stage);
 

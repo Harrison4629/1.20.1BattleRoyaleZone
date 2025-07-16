@@ -8,7 +8,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
 @Mod.EventBusSubscriber(modid = Battleroyalezone.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
-public class ZoneAreaUpdateEvent {
+public class ZoneSizeUpdateEvent {
 
     private static boolean hasShrunk = false;
 
@@ -56,12 +56,6 @@ public class ZoneAreaUpdateEvent {
     }
 
     private static void setWorldBorder(ZoneStageEvent event) {
-
-        //double centerX = event.getOffsetCenter().x -
-        //        (event.getOffsetCenter().x - event.getZoneCenter().x) * event.getStateLeftTicks() / ZoneConfig.getShrinkTick(event.getStage());
-        //double centerZ = event.getOffsetCenter().z -
-        //        (event.getOffsetCenter().z - event.getZoneCenter().z) * event.getStateLeftTicks() / ZoneConfig.getShrinkTick(event.getStage());;
-
         event.getServer().overworld().getWorldBorder().setCenter(event.getCurrentCenter().x, event.getCurrentCenter().z);
 
         if (hasShrunk) {

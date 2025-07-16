@@ -1,11 +1,13 @@
 package net.harrison.battleroyalezone.init;
 
-import net.harrison.battleroyalezone.data.MapData;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import net.harrison.battleroyalezone.data.ServerMapData;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.SectionPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -121,7 +123,7 @@ public class MapSample {
                                     lastChunk_previousBlockHeight[x] = previousBlockHeight;
                                 }
 
-                                MapData.modifyMapData(worldX, worldZ, mapcolor.getPackedId(brightness));
+                                ServerMapData.modifyMapData(worldX, worldZ, mapcolor.getPackedId(brightness));
                             }
                         }
                     }
@@ -137,6 +139,7 @@ public class MapSample {
             }
 
             source.getServer().execute(() -> source.sendSuccess(() -> Component.literal("地图采样完成！"), true));
+            ServerMapData.pushMapData();
         }).start();
     }
 

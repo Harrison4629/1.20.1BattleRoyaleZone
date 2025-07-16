@@ -2,11 +2,11 @@ package net.harrison.battleroyalezone.init;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
-import com.mojang.brigadier.arguments.IntegerArgumentType;
 import net.harrison.basicdevtool.init.ModMessages;
 import net.harrison.basicdevtool.networking.s2cpacket.PlaySoundToClientS2CPacket;
 import net.harrison.basicdevtool.util.DelayTask;
 import net.harrison.battleroyalezone.config.ZoneConfig;
+import net.harrison.battleroyalezone.data.ServerMapData;
 import net.harrison.battleroyalezone.events.ZoneStagePublisherEvent;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -88,6 +88,14 @@ public class ModCommands {
                                 )
                         )
                 )
+        );
+
+        dispatcher.register(Commands.literal("pushMap")
+                .requires(sourceStack -> sourceStack.hasPermission(2))
+                .executes(context -> {
+                    ServerMapData.pushMapData();
+                    return 1;
+                })
         );
     }
 }
