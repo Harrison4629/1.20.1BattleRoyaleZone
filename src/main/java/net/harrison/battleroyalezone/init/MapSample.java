@@ -1,13 +1,12 @@
 package net.harrison.battleroyalezone.init;
 
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.harrison.battleroyalezone.data.ServerMapData;
+import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.SectionPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -20,7 +19,7 @@ import net.minecraft.world.level.material.MapColor;
 public class MapSample {
 
     public void sample(CommandSourceStack source , double x1, double z1, double x2, double z2, double height) {
-        source.sendSuccess(() -> Component.literal("开始采样地图，这可能需要一些时间..."), true);
+        source.sendSuccess(() -> Component.translatable("sample.battleroyalezone.start").withStyle(ChatFormatting.GREEN), true);
 
         final boolean useDynamicHeight = height == Double.NEGATIVE_INFINITY;
 
@@ -133,13 +132,12 @@ public class MapSample {
                     if (now - lastProgressReportTime > 500) {
                         lastProgressReportTime = now;
                         double progress = (double) completedChunk / total;
-                        source.getServer().execute(() -> source.sendSuccess(() -> Component.literal(String.format("进度: %.2f%%", progress * 100)), true));
+                        source.getServer().execute(() -> source.sendSuccess(() -> Component.translatable("sample.battleroyalezone.progress").append(String.format("%.2f%%", progress * 100)), true));
                     }
                 }
             }
 
-            source.getServer().execute(() -> source.sendSuccess(() -> Component.literal("地图采样完成！"), true));
-            ServerMapData.pushMapData();
+            source.getServer().execute(() -> source.sendSuccess(() -> Component.translatable("command.battleroyalezone.map_sample_success").withStyle(ChatFormatting.YELLOW), true));
         }).start();
     }
 

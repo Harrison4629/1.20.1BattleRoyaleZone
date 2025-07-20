@@ -1,7 +1,6 @@
 package net.harrison.battleroyalezone.manager;
 
-import net.harrison.basicdevtool.math.RandomNumSummoner;
-import net.harrison.battleroyalezone.config.ZoneConfig;
+import net.harrison.battleroyalezone.data.ZoneData;
 import net.harrison.battleroyalezone.events.customEvents.ZoneStageEvent;
 import net.harrison.battleroyalezone.events.customEvents.ZoneStateEnum;
 import net.minecraft.server.MinecraftServer;
@@ -13,7 +12,7 @@ import java.util.concurrent.ThreadLocalRandom;
 public class ZoneManager {
     private final MinecraftServer serverInstance;
 
-    private Vec3 zoneCenter;
+    private Vec3 previousZoneCenter;
     private Vec3 nextZoneCenter;
     private int stage;
     private boolean isRunning = false;
@@ -38,7 +37,7 @@ public class ZoneManager {
             return;
         }
 
-        if (stage < ZoneConfig.getMaxStage()) {
+        if (stage < ZoneData.getMaxStage()) {
             switch (currentState) {
                 case IDLE -> handleIdleTick();
                 case WARNING -> handleWarningTick();
@@ -57,7 +56,7 @@ public class ZoneManager {
             idleLeftTicks--;
         } else {
             currentState = ZoneStateEnum.WARNING;
-            warningLeftTicks = ZoneConfig.getWarningTick(stage);
+            warningLeftTicks = ZoneData.getWarningTick(stage);
             postEvent(warningLeftTicks);
         }
     }
@@ -68,7 +67,7 @@ public class ZoneManager {
             warningLeftTicks--;
         } else {
             currentState = ZoneStateEnum.SHRINKING;
-            shrinkingLeftTicks = ZoneConfig.getShrinkTick(stage);
+            shrinkingLeftTicks = ZoneData.getShrinkTick(stage);
             postEvent(shrinkingLeftTicks);
         }
     }
@@ -79,10 +78,10 @@ public class ZoneManager {
             shrinkingLeftTicks--;
         } else {
             stage++;
-            zoneCenter = nextZoneCenter;
+            previousZoneCenter = nextZoneCenter;
             hasCalculatedNextCenter = false;
 
-            if (stage >= ZoneConfig.getMaxStage()) {
+            if (stage >= ZoneData.getMaxStage()) {
                 handleFinalZone();
             } else {
                 currentState = ZoneStateEnum.IDLE;
@@ -97,7 +96,7 @@ public class ZoneManager {
         if (isRunning) return;
 
         this.stage = 0;
-        this.zoneCenter = startPosition;
+        this.previousZoneCenter = startPosition;
         this.currentState = ZoneStateEnum.IDLE;
 
         int idleSeconds = ThreadLocalRandom.current().nextInt(MIN_IDLE_SECONDS, MAX_IDLE_SECONDS + 1);
@@ -114,28 +113,31 @@ public class ZoneManager {
 
     private void handleFinalZone() {
         currentState = ZoneStateEnum.IDLE;
-        stage = ZoneConfig.getMaxStage();
+        stage = ZoneData.getMaxStage();
         postEvent(0);
     }
 
     private void calculateNextCenter() {
-        if (stage >= ZoneConfig.getMaxStage()) {
+        if (stage >= ZoneData.getMaxStage()) {
             // 如果下一阶段就是最终阶段或超出，中心不移动
-            nextZoneCenter = zoneCenter;
+            nextZoneCenter = previousZoneCenter;
             return;
         }
 
-        double currentSize = ZoneConfig.getZoneSize(stage - 1);
-        double nextSize = ZoneConfig.getZoneSize(stage);
+        double currentSize = ZoneData.getZoneSize(stage - 1);
+        double nextSize = ZoneData.getZoneSize(stage);
         double offsetRadius = (currentSize - nextSize) / 2.0;
 
-        double offsetX = RandomNumSummoner.randomDoubleBetween(zoneCenter.x() - offsetRadius, zoneCenter.x() + offsetRadius);
-        double offsetZ = RandomNumSummoner.randomDoubleBetween(zoneCenter.z() - offsetRadius, zoneCenter.z() + offsetRadius);
+        double offsetX = ThreadLocalRandom.current().nextDouble(previousZoneCenter.x - offsetRadius, previousZoneCenter.x + offsetRadius);
+        double offsetZ = ThreadLocalRandom.current().nextDouble(previousZoneCenter.z - offsetRadius, previousZoneCenter.z + offsetRadius);
 
-        this.nextZoneCenter = new Vec3(offsetX, zoneCenter.y(), offsetZ);
+        //double offsetZ = RandomNumSummoner.randomDoubleBetween(previousZoneCenter.x() - offsetRadius, previousZoneCenter.x() + offsetRadius);
+        //double offsetZ = RandomNumSummoner.randomDoubleBetween(previousZoneCenter.z() - offsetRadius, previousZoneCenter.z() + offsetRadius);
+
+        this.nextZoneCenter = new Vec3(offsetX, previousZoneCenter.y(), offsetZ);
     }
 
     private void postEvent(int ticksLeft) {
-        MinecraftForge.EVENT_BUS.post(new ZoneStageEvent(serverInstance, isRunning, zoneCenter, nextZoneCenter, stage, currentState, ticksLeft));
+        MinecraftForge.EVENT_BUS.post(new ZoneStageEvent(serverInstance, isRunning, previousZoneCenter, nextZoneCenter, stage, currentState, ticksLeft));
     }
 }

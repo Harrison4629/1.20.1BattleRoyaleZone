@@ -1,5 +1,6 @@
 package net.harrison.battleroyalezone.data;
 
+import net.harrison.battleroyalezone.Battleroyalezone;
 import net.harrison.battleroyalezone.util.RGBBlender;
 import net.minecraft.world.level.material.MapColor;
 
@@ -7,7 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ClientMapData {
-    private static final int MAP_TEXTURE_SIZE = 256;
+    private static final int UNSAFE_ZONE_OVERLAY_COLOR = 0x80E6D8AD;
 
     private static final Map<Long, Byte> iniMapData = new HashMap<>();
 
@@ -40,7 +41,7 @@ public class ClientMapData {
 
     public static byte getBackGroundColor(int px, int pz, double playerX, double playerZ) {
 
-        int pRadius = MAP_TEXTURE_SIZE / 2;
+        int pRadius = Battleroyalezone.MAP_TEXTURE_SIZE / 2;
 
         int worldX = (int) Math.floor(playerX + (px + 0.5 - pRadius) * scale);
         int worldZ = (int) Math.floor(playerZ + (pz + 0.5 - pRadius) * scale);
@@ -55,7 +56,7 @@ public class ClientMapData {
     }
 
     public static byte drawNextSafeZone(byte iniColor, int px, int pz, double playerX, double playerZ) {
-        final int Half_Map_TEXTURE_SIZE = MAP_TEXTURE_SIZE / 2;
+        final int Half_Map_TEXTURE_SIZE = Battleroyalezone.MAP_TEXTURE_SIZE / 2;
 
         double nextZoneRadius = nextZoneLength / 2;
         int pixelMinX = (int) Math.floor((nextZoneCenterX - nextZoneRadius - playerX) / scale + Half_Map_TEXTURE_SIZE);
@@ -77,7 +78,7 @@ public class ClientMapData {
         if (zoneLength == 0) {
             return iniColor;
         }
-        final int Half_Map_TEXTURE_SIZE = MAP_TEXTURE_SIZE / 2;
+        final int Half_Map_TEXTURE_SIZE = Battleroyalezone.MAP_TEXTURE_SIZE / 2;
 
         double zoneRadius = zoneLength / 2;
         int pixelMinX = (int) ((zoneCenterX - zoneRadius - playerX) / scale + Half_Map_TEXTURE_SIZE);
@@ -85,7 +86,7 @@ public class ClientMapData {
         int pixelMinZ = (int) ((zoneCenterZ - zoneRadius - playerZ) / scale + Half_Map_TEXTURE_SIZE);
         int pixelMaxZ = (int) ((zoneCenterZ + zoneRadius - playerZ) / scale + Half_Map_TEXTURE_SIZE);
         if (px <= pixelMinX || px >= pixelMaxX || pz <= pixelMinZ || pz >= pixelMaxZ) {
-            return RGBBlender.blendColors(0x80E6D8AD, iniColor);
+            return RGBBlender.blendColors(UNSAFE_ZONE_OVERLAY_COLOR, iniColor);
         } else {
             return iniColor;
         }
@@ -94,14 +95,6 @@ public class ClientMapData {
 
     private static long coordinatesToLong(int x, int z) {
         return (long)x << 32 | z & 0xFFFFFFFFL;
-    }
-
-    private static int longToX(long key) {
-        return (int) (key >> 32);
-    }
-
-    private static int longToZ(long key) {
-        return (int) key;
     }
 
     public static void setZoneCenterX(double zoneCenterX) {

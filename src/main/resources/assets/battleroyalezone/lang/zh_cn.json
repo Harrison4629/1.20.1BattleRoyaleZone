@@ -1,0 +1,10 @@
+{
+  "command.battleroyalezone.map_push_success": "地图数据推送成功",
+  "socreboard.battleroyalezone.display_name": "毒圈状态",
+  "command.battleroyalezone.map_sample_success": "地图采样结束！",
+  "sample.battleroyalezone.progress": "进度:",
+  "sample.battleroyalezone.start": "开始取样地图，请耐心等待......",
+  "key.category.battleroyalezone": "大逃杀地图按键",
+  "key.battleroyalezone.open_map": "打开地图",
+  "manager.battleroyalezone.start_failed": "缩圈系统启动失败(已有在运行的毒圈系统)"
+}

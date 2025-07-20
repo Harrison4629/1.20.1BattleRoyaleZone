@@ -1,10 +1,10 @@
-package net.harrison.battleroyalezone.config;
+package net.harrison.battleroyalezone.data;
 
 import net.harrison.battleroyalezone.init.ModConfigs;
 
 import java.util.List;
 
-public class ZoneConfig {
+public class ZoneData {
 
     private static final int tick = 20;
 
@@ -28,12 +28,12 @@ public class ZoneConfig {
 
     public static int getWarningTick(int stage) {
         List<? extends Integer> ZONE_WARNING_TICKS = ModConfigs.zoneWarningTicks.get();
-        return stage < getMaxStage() ? ZONE_WARNING_TICKS.get(stage) : 114514;
+        return stage < getMaxStage() ? ZONE_WARNING_TICKS.get(stage) : Integer.MAX_VALUE;
     }
 
     public static int getShrinkTick(int stage) {
         List<? extends Integer> ZONE_SHRINK_TICKS = ModConfigs.zoneShrinkTicks.get();
-        return stage < getMaxStage() ? ZONE_SHRINK_TICKS.get(stage) : 114514;
+        return stage < getMaxStage() ? ZONE_SHRINK_TICKS.get(stage) : Integer.MAX_VALUE;
     }
 
     public static int getMaxStage() {

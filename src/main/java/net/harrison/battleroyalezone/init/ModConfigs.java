@@ -43,7 +43,7 @@ public class ModConfigs {
 
         zoneShrinkTicks = BUILDER.comment("每个阶段安全区收缩所需的时间 (刻，20刻=1秒)")
                 .defineListAllowEmpty("ZoneShrinkTicks",
-                        () -> Arrays.asList(1500, 600, 450, 300, 300, 150, 150, 150),
+                        () -> Arrays.asList(1600, 800, 600, 600, 600, 300, 300, 300),
                         obj -> obj instanceof Integer && (Integer)obj >= 0);
 
         BUILDER.pop();

@@ -3,7 +3,7 @@ package net.harrison.battleroyalezone.events;
 import net.harrison.basicdevtool.init.ModMessages;
 import net.harrison.basicdevtool.networking.s2cpacket.PlaySoundToClientS2CPacket;
 import net.harrison.battleroyalezone.Battleroyalezone;
-import net.harrison.battleroyalezone.config.ZoneConfig;
+import net.harrison.battleroyalezone.data.ZoneData;
 import net.harrison.battleroyalezone.events.customEvents.ZoneStageEvent;
 import net.harrison.battleroyalezone.events.customEvents.ZoneStateEnum;
 import net.minecraft.network.chat.Component;
@@ -51,8 +51,8 @@ public class AlarmUpdateEvent {
             return;
         }
 
-        event.getServer().getPlayerList().broadcastSystemMessage(Component.literal( "毒圈将在" + ZoneConfig.getWarningTick(event.getStage()) / 20 + "秒后缩小至"
-                + ZoneConfig.getZoneSize(event.getStage()) + "格大小"), true);
+        event.getServer().getPlayerList().broadcastSystemMessage(Component.literal( "毒圈将在" + ZoneData.getWarningTick(event.getStage()) / 20 + "秒后缩小至"
+                + ZoneData.getZoneSize(event.getStage()) + "格大小"), true);
         for (ServerPlayer player : event.getServer().getPlayerList().getPlayers()) {
             ModMessages.sendToPlayer(new PlaySoundToClientS2CPacket(SoundEvents.EXPERIENCE_ORB_PICKUP, 1.5F, 1.0F), player);
         }

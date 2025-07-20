@@ -2,18 +2,24 @@ package net.harrison.battleroyalezone.init;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
+import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import net.harrison.basicdevtool.init.ModMessages;
 import net.harrison.basicdevtool.networking.s2cpacket.PlaySoundToClientS2CPacket;
 import net.harrison.basicdevtool.util.DelayTask;
-import net.harrison.battleroyalezone.config.ZoneConfig;
+import net.harrison.battleroyalezone.data.ZoneData;
 import net.harrison.battleroyalezone.data.ServerMapData;
-import net.harrison.battleroyalezone.events.ZoneStagePublisherEvent;
+import net.harrison.battleroyalezone.events.ZoneTicker;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.coordinates.Vec2Argument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.entity.EntitySelector;
+
+import java.util.Collection;
 
 public class ModCommands {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
@@ -22,7 +28,7 @@ public class ModCommands {
                 .requires(source -> source.hasPermission(2))
                 .then(Commands.literal("start")
                         .executes(context -> {
-                            ZoneStagePublisherEvent.startZoneSystem(context.getSource());
+                            ZoneTicker.startZoneSystem(context.getSource());
                             return 1;
                         })
                 )
@@ -31,7 +37,7 @@ public class ModCommands {
                         .executes(context -> {
                             MinecraftServer server = context.getSource().getServer();
 
-                            String fullInfo = ZoneConfig.getInfo();
+                            String fullInfo = ZoneData.getInfo();
                             String[] lines = fullInfo.split("\n");
 
                             for (int i = 0; i < lines.length; i++) {
@@ -49,14 +55,14 @@ public class ModCommands {
 
                 .then(Commands.literal("stop")
                         .executes(context -> {
-                            ZoneStagePublisherEvent.stopZoneSystem();
+                            ZoneTicker.stopZoneSystem();
                             return 1;
                         })
                 )
         );
 
 
-        dispatcher.register(Commands.literal("samplemap")
+        dispatcher.register(Commands.literal("sample")
                 .requires(sourceStack -> sourceStack.hasPermission(2))
                 .then(Commands.argument("pos1", Vec2Argument.vec2())
                         .then(Commands.argument("pos2", Vec2Argument.vec2())
@@ -92,10 +98,27 @@ public class ModCommands {
 
         dispatcher.register(Commands.literal("pushMap")
                 .requires(sourceStack -> sourceStack.hasPermission(2))
-                .executes(context -> {
-                    ServerMapData.pushMapData();
-                    return 1;
-                })
+                .then(Commands.argument("player", EntityArgument.player())
+                        .executes(context -> {
+                            ServerPlayer player = EntityArgument.getPlayer(context, "player");
+                            ServerMapData.pushMapData(player);
+                            player.sendSystemMessage(Component.translatable("command.battleroyalezone.map_push_success"), false);
+                            return 1;
+                        })
+                )
+
+                .then(Commands.argument("players", EntityArgument.players())
+                        .executes(context -> {
+                            Collection<ServerPlayer> players = EntityArgument.getPlayers(context, "players");
+                            int count = 0;
+                            for (ServerPlayer player : players) {
+                                ServerMapData.pushMapData(player);
+                                player.sendSystemMessage(Component.translatable("command.battleroyalezone.map_push_success"), false);
+                                count++;
+                            }
+                            return count;
+                        })
+                )
         );
     }
 }

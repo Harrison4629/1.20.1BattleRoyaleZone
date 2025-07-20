@@ -1,7 +1,7 @@
 package net.harrison.battleroyalezone.events;
 
 import net.harrison.battleroyalezone.Battleroyalezone;
-import net.harrison.battleroyalezone.config.ZoneConfig;
+import net.harrison.battleroyalezone.data.ZoneData;
 import net.harrison.battleroyalezone.events.customEvents.ZoneStageEvent;
 import net.harrison.battleroyalezone.events.customEvents.ZoneStateEnum;
 import net.minecraft.world.scores.Objective;
@@ -10,16 +10,14 @@ import net.minecraft.world.scores.Scoreboard;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
+import java.util.Objects;
+
 @Mod.EventBusSubscriber(modid = Battleroyalezone.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class ScoreBoardUpdateEvent {
 
-    private static final String SCOREBOARD_OBJECTIVE_NAME = "BattleroyaleZone";
-
     private static final String SHRINK = "§cShrinking";
     private static final String WARNING = "§bWill_shrink_in";
-
-
-
+    private static final String decorate = "----------";
 
     @SubscribeEvent
     public static void onZoneStage(ZoneStageEvent event) {
@@ -36,15 +34,14 @@ public class ScoreBoardUpdateEvent {
             return;
         }
 
-        if (event.getState() == ZoneStateEnum.IDLE && event.getStage() == ZoneConfig.getMaxStage()) {
-            clearScore(event);
-            return;
-        }
-
-
         Scoreboard scoreboard = event.getServer().getScoreboard();
 
-        Objective objective = scoreboard.getObjective(SCOREBOARD_OBJECTIVE_NAME);
+        Objective objective = scoreboard.getObjective(Battleroyalezone.SCOREBOARD_OBJECTIVE_NAME);
+
+        if (event.getState() == ZoneStateEnum.IDLE && event.getStage() == ZoneData.getMaxStage()) {
+            clearScore(scoreboard, objective);
+            return;
+        }
 
         if (objective == null) {
             return;
@@ -52,7 +49,7 @@ public class ScoreBoardUpdateEvent {
 
         scoreboard.setDisplayObjective(Scoreboard.DISPLAY_SLOT_SIDEBAR, objective);
 
-        Score decorate = scoreboard.getOrCreatePlayerScore("----------", objective);
+        Score decorate = scoreboard.getOrCreatePlayerScore(ScoreBoardUpdateEvent.decorate, objective);
         decorate.setScore(0);
 
         ZoneStateEnum state =  event.getState();
@@ -60,15 +57,15 @@ public class ScoreBoardUpdateEvent {
         int Seconds = event.getStateLeftTicks() / 20;
         switch (state) {
             case IDLE :
-                handleIDLEScoreBoard(Seconds, event);
+                updateIDLEScoreBoard(scoreboard, objective);
                 break;
 
             case WARNING:
-                handleWARNINGScoreBoard(Seconds, event);
+                updateScoreBoard(scoreboard, objective, WARNING, Seconds);
                 break;
 
             case SHRINKING:
-                handleSHRINKINGScoreBoard(Seconds, event);
+                updateScoreBoard(scoreboard, objective, SHRINK, Seconds);
                 break;
 
             default:
@@ -76,58 +73,31 @@ public class ScoreBoardUpdateEvent {
         }
     }
 
-    private static void clearScore(ZoneStageEvent event) {
-        Scoreboard scoreboard = event.getServer().getScoreboard();
-        Objective objective = scoreboard.getObjective(SCOREBOARD_OBJECTIVE_NAME);
-
+    private static void clearScore(Scoreboard scoreboard, Objective objective) {
         scoreboard.resetPlayerScore(SHRINK, objective);
         scoreboard.resetPlayerScore(WARNING, objective);
     }
 
     private static void resetScore(ZoneStageEvent event) {
-        clearScore(event);
-
         Scoreboard scoreboard = event.getServer().getScoreboard();
-        Objective objective = scoreboard.getObjective(SCOREBOARD_OBJECTIVE_NAME);
-        scoreboard.resetPlayerScore("----------", objective);
-
+        Objective objective = scoreboard.getObjective(Battleroyalezone.SCOREBOARD_OBJECTIVE_NAME);
+        clearScore(scoreboard, objective);
+        scoreboard.resetPlayerScore(decorate, objective);
     }
 
-    private static void handleIDLEScoreBoard(int seconds, ZoneStageEvent event) {
-        Scoreboard scoreboard = event.getServer().getScoreboard();
-        Objective objective = scoreboard.getObjective(SCOREBOARD_OBJECTIVE_NAME);
+    private static void updateIDLEScoreBoard(Scoreboard scoreboard, Objective objective) {
         scoreboard.resetPlayerScore(SHRINK, objective);
         scoreboard.resetPlayerScore(WARNING, objective);
-
     }
 
-    private static void handleWARNINGScoreBoard(int seconds, ZoneStageEvent event) {
-        Scoreboard scoreboard = event.getServer().getScoreboard();
-        Objective objective = scoreboard.getObjective(SCOREBOARD_OBJECTIVE_NAME);
-        scoreboard.resetPlayerScore(SHRINK, objective);
-
-        Score score = null;
-        if (objective != null) {
-            score = scoreboard.getOrCreatePlayerScore(WARNING, objective);
+    private static void updateScoreBoard(Scoreboard scoreboard, Objective objective, String Display, int seconds) {
+        if (Objects.equals(Display, SHRINK)) {
+            scoreboard.resetPlayerScore(WARNING, objective);
+        } else {
+            scoreboard.resetPlayerScore(SHRINK, objective);
         }
 
-        if (score != null) {
-            score.setScore(seconds);
-        }
-    }
-
-    private static void handleSHRINKINGScoreBoard(int seconds, ZoneStageEvent event) {
-        Scoreboard scoreboard = event.getServer().getScoreboard();
-        Objective objective = scoreboard.getObjective(SCOREBOARD_OBJECTIVE_NAME);
-        scoreboard.resetPlayerScore(WARNING, objective);
-
-        Score score = null;
-        if (objective != null) {
-            score = scoreboard.getOrCreatePlayerScore(SHRINK, objective);
-        }
-
-        if (score != null) {
-            score.setScore(seconds);
-        }
+        Score score = scoreboard.getOrCreatePlayerScore(Display, objective);
+        score.setScore(seconds);
     }
 }

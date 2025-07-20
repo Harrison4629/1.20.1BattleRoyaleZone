@@ -1,7 +1,7 @@
 package net.harrison.battleroyalezone.events;
 
 import net.harrison.battleroyalezone.Battleroyalezone;
-import net.harrison.battleroyalezone.config.ZoneConfig;
+import net.harrison.battleroyalezone.data.ZoneData;
 import net.harrison.battleroyalezone.events.customEvents.ZoneStageEvent;
 import net.harrison.battleroyalezone.events.customEvents.ZoneStateEnum;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -18,7 +18,7 @@ public class ZoneDamageUpdateEvent {
             return;
         }
 
-        ZoneStateEnum state =  event.getState();
+        ZoneStateEnum state = event.getState();
 
         if (!event.getRunningState()){
             return;
@@ -47,14 +47,14 @@ public class ZoneDamageUpdateEvent {
         if (event.getStage() != 0) {
             return;
         }
-        event.getServer().overworld().getWorldBorder().setDamagePerBlock(ZoneConfig.getZoneDamage(-1));
+        event.getServer().overworld().getWorldBorder().setDamagePerBlock(ZoneData.getZoneDamage(-1));
     }
 
     private static void handleWorldBorderDamage(ZoneStageEvent event) {
         if (hasSet) {
             return;
         }
-        event.getServer().overworld().getWorldBorder().setDamagePerBlock(ZoneConfig.getZoneDamage(event.getStage()));
+        event.getServer().overworld().getWorldBorder().setDamagePerBlock(ZoneData.getZoneDamage(event.getStage()));
 
         hasSet = true;
     }

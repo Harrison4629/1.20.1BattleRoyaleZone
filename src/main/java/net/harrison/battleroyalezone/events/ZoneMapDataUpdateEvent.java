@@ -10,7 +10,6 @@ import net.minecraftforge.fml.common.Mod;
 
 @Mod.EventBusSubscriber(modid = Battleroyalezone.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class ZoneMapDataUpdateEvent {
-    private static final int MAP_TEXTURE_SIZE = 256;
 
     @SubscribeEvent
     public static void onZoneStage(ZoneStageEvent event) {
@@ -28,10 +27,10 @@ public class ZoneMapDataUpdateEvent {
 
         ModMessages.sendToAllPlayer(new MapReferenceSyncS2CPacket(
                 event.getCurrentCenter(),
-                event.getOffsetCenter(),
+                event.getNextZoneCenter(),
                 event.getCurrentZoneSize(),
                 event.getFutureZoneSize(),
-                event.getCurrentZoneSize() / MAP_TEXTURE_SIZE,
+                event.getCurrentZoneSize() / Battleroyalezone.MAP_TEXTURE_SIZE,
                 false));
     }
 }

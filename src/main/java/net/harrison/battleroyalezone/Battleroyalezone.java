@@ -1,7 +1,8 @@
 package net.harrison.battleroyalezone;
 
-import net.harrison.battleroyalezone.events.ZoneStagePublisherEvent;
+import net.harrison.battleroyalezone.events.ZoneTicker;
 import net.harrison.battleroyalezone.init.*;
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.scores.Objective;
@@ -24,8 +25,9 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 @Mod(Battleroyalezone.MODID)
 public class Battleroyalezone {
 
-    private static final String SCOREBOARD_OBJECTIVE_NAME = "BattleroyaleZone";
-    private static final Component SCOREBOARD_DISPLAY_NAME = Component.literal("§eZone Status");
+    public static final int MAP_TEXTURE_SIZE = 256;
+    public static final String SCOREBOARD_OBJECTIVE_NAME = "BattleroyaleZone";
+    private static final Component SCOREBOARD_DISPLAY_NAME = Component.translatable("socreboard.battleroyalezone.display_name").withStyle(ChatFormatting.YELLOW);
 
     public static final String MODID = "battleroyalezone";
 
@@ -66,7 +68,7 @@ public class Battleroyalezone {
 
     @SubscribeEvent
     public void onServerStopping(ServerStoppingEvent event) {
-        ZoneStagePublisherEvent.stopZoneSystem();
+        ZoneTicker.stopZoneSystem();
     }
 
     @SubscribeEvent

@@ -1,24 +1,24 @@
 package net.harrison.battleroyalezone.events.customEvents;
 
-import net.harrison.battleroyalezone.config.ZoneConfig;
+import net.harrison.battleroyalezone.data.ZoneData;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.eventbus.api.Event;
 
 public class ZoneStageEvent extends Event {
     private final MinecraftServer server;
-    private final Vec3 zoneCenter;
+    private final Vec3 previousZoneCenter;
+    private final Vec3 nextZoneCenter;
     private final ZoneStateEnum state;
     private final int stage;
     private final int stateLeftTicks;
     private final boolean running;
-    private final Vec3 offsetCenter;
 
-    public ZoneStageEvent(MinecraftServer server, boolean running, Vec3 zoneCenter,
-                          Vec3 offsetCenter, int stage, ZoneStateEnum state, int stateLeftTicks) {
+    public ZoneStageEvent(MinecraftServer server, boolean running, Vec3 previousZoneCenter,
+                          Vec3 nextZoneCenter, int stage, ZoneStateEnum state, int stateLeftTicks) {
         this.running = running;
-        this.zoneCenter = zoneCenter;
-        this.offsetCenter = offsetCenter;
+        this.previousZoneCenter = previousZoneCenter;
+        this.nextZoneCenter = nextZoneCenter;
         this.stage = stage;
         this.state = state;
         this.stateLeftTicks = stateLeftTicks;
@@ -29,8 +29,8 @@ public class ZoneStageEvent extends Event {
         return this.server;
     }
 
-    public Vec3 getZoneCenter() {
-        return this.zoneCenter;
+    public Vec3 getPreviousZoneCenter() {
+        return this.previousZoneCenter;
     }
 
     public ZoneStateEnum getState() {
@@ -49,44 +49,50 @@ public class ZoneStageEvent extends Event {
         return this.running;
     }
 
-    public Vec3 getOffsetCenter() {
-        return this.offsetCenter;
+    public Vec3 getNextZoneCenter() {
+        return this.nextZoneCenter;
     }
 
     public Vec3 getCurrentCenter() {
         if (state == ZoneStateEnum.IDLE || state == ZoneStateEnum.WARNING) {
-            return getZoneCenter();
+            return previousZoneCenter;
         } else {
             return new Vec3(
-                    getOffsetCenter().x - (getOffsetCenter().x - getZoneCenter().x) * getStateLeftTicks() / ZoneConfig.getShrinkTick(getStage()),
-                    getZoneCenter().y,
-                    getOffsetCenter().z - (getOffsetCenter().z - getZoneCenter().z) * getStateLeftTicks() / ZoneConfig.getShrinkTick(getStage())
-            );
+                    interpolate(previousZoneCenter.x, nextZoneCenter.x, stateLeftTicks, ZoneData.getShrinkTick(stage)),
+                    previousZoneCenter.y,
+                    interpolate(previousZoneCenter.z, nextZoneCenter.z, stateLeftTicks, ZoneData.getShrinkTick(stage)));
         }
     }
 
     public double getFutureZoneSize() {
-        if (stage >= ZoneConfig.getMaxStage()) {
-            return ZoneConfig.getZoneSize(ZoneConfig.getMaxStage() - 1);
+        if (stage >= ZoneData.getMaxStage()) {
+            return ZoneData.getZoneSize(ZoneData.getMaxStage() - 1);
         } else {
-            return ZoneConfig.getZoneSize(stage);
+            return ZoneData.getZoneSize(stage);
         }
     }
 
     public double getCurrentZoneSize() {
-        if (stage >= ZoneConfig.getMaxStage()) {
-            return ZoneConfig.getZoneSize(ZoneConfig.getMaxStage() - 1);
+        if (stage >= ZoneData.getMaxStage()) {
+            return ZoneData.getZoneSize(ZoneData.getMaxStage() - 1);
         } else {
             switch (state) {
                 case IDLE, WARNING -> {
-                    return ZoneConfig.getZoneSize(stage - 1);
+                    return ZoneData.getZoneSize(stage - 1);
                 }
                 case SHRINKING -> {
-                    return ZoneConfig.getZoneSize(stage) + (double) ((ZoneConfig.getZoneSize(stage - 1) - ZoneConfig.getZoneSize(stage))
-                            * getStateLeftTicks()) / ZoneConfig.getShrinkTick(stage);
+                    return interpolate(ZoneData.getZoneSize(stage - 1), ZoneData.getZoneSize(stage), stateLeftTicks, ZoneData.getShrinkTick(stage));
                 }
                 default -> throw new UnsupportedOperationException("It should not happened!");
             }
         }
+    }
+
+    private double interpolate(double start, double end, int ticksLeft, int totalTicks) {
+        if (totalTicks <= 0) {
+            return end;
+        }
+        double t = (double) ticksLeft / totalTicks;
+        return start * t + end * (1.0 - t);
     }
 }

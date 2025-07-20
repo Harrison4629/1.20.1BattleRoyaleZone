@@ -1,5 +1,7 @@
 package net.harrison.battleroyalezone.screen;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
 import net.harrison.battleroyalezone.Battleroyalezone;
 import net.harrison.battleroyalezone.data.ClientMapData;
 import net.harrison.battleroyalezone.init.ModKeyBinds;
@@ -13,10 +15,10 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.material.MapColor;
 
 public class MapScreen extends Screen {
-    private DynamicTexture mapTexture;
-    private ResourceLocation mapTextureLocation;
+    private final DynamicTexture mapTexture;
+    private final ResourceLocation mapTextureLocation;
     private static final int MAP_TEXTURE_SIZE = 256;
-    private static final ResourceLocation playerIcon = ResourceLocation.fromNamespaceAndPath(Battleroyalezone.MODID, "textures/gui/player_icon.png");
+    private static final ResourceLocation Pointer = ResourceLocation.fromNamespaceAndPath(Battleroyalezone.MODID, "textures/gui/pointer.png");
 
     public MapScreen() {
         super(Component.literal("Tactical Map"));
@@ -40,11 +42,35 @@ public class MapScreen extends Screen {
         int mapTop = (this.height - MAP_TEXTURE_SIZE) / 2;
         pGuiGraphics.blit(mapTextureLocation, mapLeft, mapTop, 0, 0, MAP_TEXTURE_SIZE, MAP_TEXTURE_SIZE);
 
-        int iconSize = 16;
 
-        pGuiGraphics.blit(playerIcon, mapLeft + (MAP_TEXTURE_SIZE / 2) - (iconSize / 2), mapTop + (MAP_TEXTURE_SIZE / 2) - (iconSize / 2), 0, 0, iconSize, iconSize, iconSize, iconSize);
+        renderPlayerPointer(pGuiGraphics, mapLeft, mapTop);
 
         super.render(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
+    }
+
+    private void renderPlayerPointer(GuiGraphics pGuiGraphics, int mapLeft, int mapTop) {
+
+        Player player = Minecraft.getInstance().player;
+        if (player == null) return;
+
+        int iconSize = 16;
+        float iconCenterX = mapLeft + (MAP_TEXTURE_SIZE / 2.0f);
+        float iconCenterY = mapTop + (MAP_TEXTURE_SIZE / 2.0f);
+
+        float playerYaw = player.getYRot();
+        float rotationAngle = playerYaw + 180.0f;
+
+        PoseStack poseStack = pGuiGraphics.pose();
+
+        poseStack.pushPose();
+
+        poseStack.translate(iconCenterX, iconCenterY, 0);
+
+        poseStack.mulPose(Axis.ZP.rotationDegrees(rotationAngle));
+
+        pGuiGraphics.blit(Pointer, -iconSize / 2, -iconSize / 2, 0, 0, iconSize, iconSize, iconSize, iconSize);
+
+        poseStack.popPose();
     }
 
     private void updateMapTexture() {

@@ -1,7 +1,7 @@
 package net.harrison.battleroyalezone.events;
 
 import net.harrison.battleroyalezone.Battleroyalezone;
-import net.harrison.battleroyalezone.config.ZoneConfig;
+import net.harrison.battleroyalezone.data.ZoneData;
 import net.harrison.battleroyalezone.events.customEvents.ZoneStageEvent;
 import net.harrison.battleroyalezone.events.customEvents.ZoneStateEnum;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -51,8 +51,8 @@ public class ZoneSizeUpdateEvent {
         if (event.getStage() != 0) {
             return;
         }
-        event.getServer().overworld().getWorldBorder().setCenter(event.getZoneCenter().x, event.getZoneCenter().z);
-        event.getServer().overworld().getWorldBorder().setSize(ZoneConfig.getZoneSize(-1));
+        event.getServer().overworld().getWorldBorder().setCenter(event.getPreviousZoneCenter().x, event.getPreviousZoneCenter().z);
+        event.getServer().overworld().getWorldBorder().setSize(ZoneData.getZoneSize(-1));
     }
 
     private static void setWorldBorder(ZoneStageEvent event) {
@@ -62,9 +62,9 @@ public class ZoneSizeUpdateEvent {
             return;
         }
 
-        event.getServer().overworld().getWorldBorder().lerpSizeBetween(ZoneConfig.getZoneSize(event.getStage() - 1),
-                ZoneConfig.getZoneSize(Math.min(event.getStage(), ZoneConfig.getMaxStage() - 1)),
-                ZoneConfig.getShrinkTick(event.getStage()) * 50L);
+        event.getServer().overworld().getWorldBorder().lerpSizeBetween(ZoneData.getZoneSize(event.getStage() - 1),
+                ZoneData.getZoneSize(Math.min(event.getStage(), ZoneData.getMaxStage() - 1)),
+                ZoneData.getShrinkTick(event.getStage()) * 50L);
 
         hasShrunk = true;
     }
