@@ -97,6 +97,7 @@ public class ZoneManager {
 
         this.stage = 0;
         this.previousZoneCenter = startPosition;
+        this.nextZoneCenter = startPosition;
         this.currentState = ZoneStateEnum.IDLE;
 
         int idleSeconds = ThreadLocalRandom.current().nextInt(MIN_IDLE_SECONDS, MAX_IDLE_SECONDS + 1);

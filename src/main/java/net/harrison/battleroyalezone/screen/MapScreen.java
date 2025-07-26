@@ -20,6 +20,9 @@ public class MapScreen extends Screen {
     private static final int MAP_TEXTURE_SIZE = 256;
     private static final ResourceLocation Pointer = ResourceLocation.fromNamespaceAndPath(Battleroyalezone.MODID, "textures/gui/pointer.png");
 
+    private double mapOffsetX = 0.0;
+    private double mapOffsetZ = 0.0;
+
     public MapScreen() {
         super(Component.literal("Tactical Map"));
         this.mapTexture = new DynamicTexture(MAP_TEXTURE_SIZE, MAP_TEXTURE_SIZE, true);
@@ -29,6 +32,8 @@ public class MapScreen extends Screen {
     @Override
     protected void init() {
         super.init();
+        this.mapOffsetX = 0;
+        this.mapOffsetZ = 0;
         updateMapTexture();
     }
 
@@ -49,13 +54,16 @@ public class MapScreen extends Screen {
     }
 
     private void renderPlayerPointer(GuiGraphics pGuiGraphics, int mapLeft, int mapTop) {
-
         Player player = Minecraft.getInstance().player;
         if (player == null) return;
 
-        int iconSize = 16;
-        float iconCenterX = mapLeft + (MAP_TEXTURE_SIZE / 2.0f);
-        float iconCenterY = mapTop + (MAP_TEXTURE_SIZE / 2.0f);
+        double scale = ClientMapData.getScale();
+        int iconSize = (int) (16 / ClientMapData.getScale());
+        float screenCenterX = mapLeft + (MAP_TEXTURE_SIZE / 2.0f);
+        float screenCenterY = mapTop + (MAP_TEXTURE_SIZE / 2.0f);
+
+        float pointerX = screenCenterX - (float)(this.mapOffsetX / scale);
+        float pointerY = screenCenterY - (float)(this.mapOffsetZ / scale);
 
         float playerYaw = player.getYRot();
         float rotationAngle = playerYaw + 180.0f;
@@ -64,7 +72,7 @@ public class MapScreen extends Screen {
 
         poseStack.pushPose();
 
-        poseStack.translate(iconCenterX, iconCenterY, 0);
+        poseStack.translate(pointerX, pointerY, 0);
 
         poseStack.mulPose(Axis.ZP.rotationDegrees(rotationAngle));
 
@@ -77,17 +85,18 @@ public class MapScreen extends Screen {
         Player player = Minecraft.getInstance().player;
         if (player == null) return;
 
-        double playerX = player.getX();
-        double playerZ = player.getZ();
+        double viewCenterX = player.getX() + this.mapOffsetX;
+        double viewCenterZ = player.getZ() + this.mapOffsetZ;
 
         for (int x = 0; x < MAP_TEXTURE_SIZE; x++) {
             for (int z = 0; z < MAP_TEXTURE_SIZE; z++) {
-                byte colorId = ClientMapData.getBackGroundColor(x, z, playerX, playerZ);
+                byte colorId = ClientMapData.getBackGroundColor(x, z, viewCenterX, viewCenterZ);
 
-                colorId = ClientMapData.drawNextSafeZone(colorId, x, z, playerX, playerZ);
+                colorId = ClientMapData.drawNextSafeZone(colorId, x, z, viewCenterX, viewCenterZ);
 
                 int color = MapColor.getColorFromPackedId(colorId);
-                color = ClientMapData.drawUnsafeZone(color, x, z, playerX, playerZ);
+                color = ClientMapData.drawUnsafeZone(color, x, z, viewCenterX, viewCenterZ);
+
 
                 if (this.mapTexture.getPixels() != null) {
                     this.mapTexture.getPixels().setPixelRGBA(x, z, color);
@@ -115,5 +124,56 @@ public class MapScreen extends Screen {
             return true;
         }
         return super.keyPressed(pKeyCode, pScanCode, pModifiers);
+    }
+
+    @Override
+    public boolean mouseScrolled(double pMouseX, double pMouseY, double pDelta) {
+        double zoomFactor = 1.1;
+        double currentScale = ClientMapData.getScale();
+        double newScale;
+
+        if (pDelta > 0) {
+            newScale = currentScale / zoomFactor;
+        } else {
+            newScale = currentScale * zoomFactor;
+        }
+
+        ClientMapData.setScale(newScale);
+
+        return true;
+    }
+
+    @Override
+    public boolean mouseClicked(double pMouseX, double pMouseY, int pButton) {
+        if (pButton == 0) {
+            int mapLeft = (this.width - MAP_TEXTURE_SIZE) / 2;
+            int mapTop = (this.height - MAP_TEXTURE_SIZE) / 2;
+            if (pMouseX >= mapLeft && pMouseX < mapLeft + MAP_TEXTURE_SIZE &&
+                    pMouseY >= mapTop && pMouseY < mapTop + MAP_TEXTURE_SIZE) {
+                this.setDragging(true);
+                return true;
+            }
+        }
+        return super.mouseClicked(pMouseX, pMouseY, pButton);
+    }
+
+    @Override
+    public boolean mouseReleased(double pMouseX, double pMouseY, int pButton) {
+        if (pButton == 0) {
+            this.setDragging(false);
+            return true;
+        }
+        return super.mouseReleased(pMouseX, pMouseY, pButton);
+    }
+
+    @Override
+    public boolean mouseDragged(double pMouseX, double pMouseY, int pButton, double pDragX, double pDragY) {
+        if (this.isDragging() && pButton == 0) {
+            double scale = ClientMapData.getScale();
+            this.mapOffsetX -= pDragX * scale;
+            this.mapOffsetZ -= pDragY * scale;
+            return true;
+        }
+        return super.mouseDragged(pMouseX, pMouseY, pButton, pDragX, pDragY);
     }
 }

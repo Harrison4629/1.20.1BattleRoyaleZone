@@ -14,17 +14,15 @@ public class MapReferenceSyncS2CPacket {
     private final double nextZoneCenterZ;
     private final double zoneLength;
     private final double nextZoneLength;
-    private final double scale;
     private final boolean reset;
 
-    public MapReferenceSyncS2CPacket(Vec3 zoneCenter, Vec3 nextZoneCenter, double zoneLength, double nextZoneLength, double scale, boolean reset) {
+    public MapReferenceSyncS2CPacket(Vec3 zoneCenter, Vec3 nextZoneCenter, double zoneLength, double nextZoneLength, boolean reset) {
         this.zoneCenterX = zoneCenter.x;
         this.zoneCenterZ = zoneCenter.z;
         this.nextZoneCenterX = nextZoneCenter.x;
         this.nextZoneCenterZ = nextZoneCenter.z;
         this.zoneLength = zoneLength;
         this.nextZoneLength = nextZoneLength;
-        this.scale = scale;
         this.reset = reset;
     }
 
@@ -35,7 +33,6 @@ public class MapReferenceSyncS2CPacket {
         this.nextZoneCenterZ = buf.readDouble();
         this.zoneLength = buf.readDouble();
         this.nextZoneLength = buf.readDouble();
-        this.scale = buf.readDouble();
         this.reset = buf.readBoolean();
     }
 
@@ -47,7 +44,6 @@ public class MapReferenceSyncS2CPacket {
         buf.writeDouble(nextZoneCenterZ);
         buf.writeDouble(zoneLength);
         buf.writeDouble(nextZoneLength);
-        buf.writeDouble(scale);
         buf.writeBoolean(reset);
     }
 
@@ -64,7 +60,6 @@ public class MapReferenceSyncS2CPacket {
                 ClientMapData.setNextZoneCenterZ(nextZoneCenterZ);
                 ClientMapData.setZoneLength(zoneLength);
                 ClientMapData.setNextZoneLength(nextZoneLength);
-                ClientMapData.setScale(scale);
             }
         });
         context.setPacketHandled(true);

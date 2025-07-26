@@ -2,12 +2,11 @@ package net.harrison.battleroyalezone.init;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
-import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import net.harrison.basicdevtool.init.ModMessages;
 import net.harrison.basicdevtool.networking.s2cpacket.PlaySoundToClientS2CPacket;
 import net.harrison.basicdevtool.util.DelayTask;
-import net.harrison.battleroyalezone.data.ZoneData;
 import net.harrison.battleroyalezone.data.ServerMapData;
+import net.harrison.battleroyalezone.data.ZoneData;
 import net.harrison.battleroyalezone.events.ZoneTicker;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -15,10 +14,9 @@ import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.coordinates.Vec2Argument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.entity.EntitySelector;
-
 import java.util.Collection;
 
 public class ModCommands {
@@ -101,7 +99,8 @@ public class ModCommands {
                 .then(Commands.argument("player", EntityArgument.player())
                         .executes(context -> {
                             ServerPlayer player = EntityArgument.getPlayer(context, "player");
-                            ServerMapData.pushMapData(player);
+
+                            ServerMapData.get((ServerLevel) player.level()).pushMapData(player);
                             player.sendSystemMessage(Component.translatable("command.battleroyalezone.map_push_success"), false);
                             return 1;
                         })
@@ -112,7 +111,8 @@ public class ModCommands {
                             Collection<ServerPlayer> players = EntityArgument.getPlayers(context, "players");
                             int count = 0;
                             for (ServerPlayer player : players) {
-                                ServerMapData.pushMapData(player);
+
+                                ServerMapData.get((ServerLevel) player.level()).pushMapData(player);
                                 player.sendSystemMessage(Component.translatable("command.battleroyalezone.map_push_success"), false);
                                 count++;
                             }

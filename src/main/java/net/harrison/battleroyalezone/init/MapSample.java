@@ -122,7 +122,8 @@ public class MapSample {
                                     lastChunk_previousBlockHeight[x] = previousBlockHeight;
                                 }
 
-                                ServerMapData.modifyMapData(worldX, worldZ, mapcolor.getPackedId(brightness));
+                                ServerMapData.get(source.getLevel()).modifyMapData(worldX, worldZ, mapcolor.getPackedId(brightness));
+
                             }
                         }
                     }

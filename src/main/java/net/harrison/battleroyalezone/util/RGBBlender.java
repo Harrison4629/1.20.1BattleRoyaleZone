@@ -3,14 +3,14 @@ package net.harrison.battleroyalezone.util;
 public class RGBBlender {
     public static int blendColors(int color1, int color2) {
         int alpha1 = (color1 >> 24) & 0xFF; // A
-        int blue1  = (color1 >> 16) & 0xFF; // B
+        int red1  = (color1 >> 16) & 0xFF; // B
         int green1 = (color1 >> 8)  & 0xFF; // G
-        int red1   = (color1 >> 0)  & 0xFF; // R
+        int blue1   = (color1 >> 0)  & 0xFF; // R
 
         int alpha2 = (color2 >> 24) & 0xFF; // A
-        int blue2  = (color2 >> 16) & 0xFF; // B
+        int red2  = (color2 >> 16) & 0xFF; // B
         int green2 = (color2 >> 8)  & 0xFF; // G
-        int red2   = (color2 >> 0)  & 0xFF; // R
+        int blue2   = (color2 >> 0)  & 0xFF; // R
 
         float alphaRatio1 = (float) alpha1 / 255.0F;
         float invAlphaRatio1 = 1.0F - alphaRatio1;

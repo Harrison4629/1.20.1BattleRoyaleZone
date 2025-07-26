@@ -19,7 +19,6 @@ public class ZoneMapDataUpdateEvent {
                     Vec3.ZERO,
                     0,
                     0,
-                    1.0F,
                     true
             ));
             return;
@@ -30,7 +29,6 @@ public class ZoneMapDataUpdateEvent {
                 event.getNextZoneCenter(),
                 event.getCurrentZoneSize(),
                 event.getFutureZoneSize(),
-                event.getCurrentZoneSize() / Battleroyalezone.MAP_TEXTURE_SIZE,
                 false));
     }
 }
