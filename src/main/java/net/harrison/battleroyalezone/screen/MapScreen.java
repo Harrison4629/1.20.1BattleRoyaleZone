@@ -14,11 +14,15 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.material.MapColor;
 
+
 public class MapScreen extends Screen {
+    public static final int MAP_TEXTURE_SIZE = 256;
+    public static final int Half_Map_TEXTURE_SIZE = MAP_TEXTURE_SIZE / 2;
+
     private final DynamicTexture mapTexture;
     private final ResourceLocation mapTextureLocation;
-    private static final int MAP_TEXTURE_SIZE = 256;
     private static final ResourceLocation Pointer = ResourceLocation.fromNamespaceAndPath(Battleroyalezone.MODID, "textures/gui/pointer.png");
+    private static final ResourceLocation Border = ResourceLocation.fromNamespaceAndPath(Battleroyalezone.MODID, "textures/gui/border.png");
 
     private double mapOffsetX = 0.0;
     private double mapOffsetZ = 0.0;
@@ -47,6 +51,7 @@ public class MapScreen extends Screen {
         int mapTop = (this.height - MAP_TEXTURE_SIZE) / 2;
         pGuiGraphics.blit(mapTextureLocation, mapLeft, mapTop, 0, 0, MAP_TEXTURE_SIZE, MAP_TEXTURE_SIZE);
 
+        pGuiGraphics.blit(Border, mapLeft, mapTop, 0, 0, MAP_TEXTURE_SIZE, MAP_TEXTURE_SIZE);
 
         renderPlayerPointer(pGuiGraphics, mapLeft, mapTop);
 
@@ -57,13 +62,12 @@ public class MapScreen extends Screen {
         Player player = Minecraft.getInstance().player;
         if (player == null) return;
 
-        double scale = ClientMapData.getScale();
         int iconSize = (int) (16 / ClientMapData.getScale());
         float screenCenterX = mapLeft + (MAP_TEXTURE_SIZE / 2.0f);
         float screenCenterY = mapTop + (MAP_TEXTURE_SIZE / 2.0f);
 
-        float pointerX = screenCenterX - (float)(this.mapOffsetX / scale);
-        float pointerY = screenCenterY - (float)(this.mapOffsetZ / scale);
+        float pointerX = screenCenterX - (float)(this.mapOffsetX / ClientMapData.getScale());
+        float pointerY = screenCenterY - (float)(this.mapOffsetZ / ClientMapData.getScale());
 
         float playerYaw = player.getYRot();
         float rotationAngle = playerYaw + 180.0f;
@@ -85,17 +89,22 @@ public class MapScreen extends Screen {
         Player player = Minecraft.getInstance().player;
         if (player == null) return;
 
-        double viewCenterX = player.getX() + this.mapOffsetX;
-        double viewCenterZ = player.getZ() + this.mapOffsetZ;
+        double mapWorldX = player.getX() + this.mapOffsetX;
+        double mapWorldZ = player.getZ() + this.mapOffsetZ;
 
         for (int x = 0; x < MAP_TEXTURE_SIZE; x++) {
             for (int z = 0; z < MAP_TEXTURE_SIZE; z++) {
-                byte colorId = ClientMapData.getBackGroundColor(x, z, viewCenterX, viewCenterZ);
 
-                colorId = ClientMapData.drawNextSafeZone(colorId, x, z, viewCenterX, viewCenterZ);
+                double worldX =  Math.floor(mapWorldX + (x + 0.5 - Half_Map_TEXTURE_SIZE) * ClientMapData.getScale());
+                double worldZ =  Math.floor(mapWorldZ + (z + 0.5 - Half_Map_TEXTURE_SIZE) * ClientMapData.getScale());
+
+                byte colorId = ClientMapData.getBackGroundColor(worldX, worldZ);
 
                 int color = MapColor.getColorFromPackedId(colorId);
-                color = ClientMapData.drawUnsafeZone(color, x, z, viewCenterX, viewCenterZ);
+
+                if (!ClientMapData.OverLaysIsEmpty()) {
+                    color = ClientMapData.applyOverlays(color, x, z, mapWorldX, mapWorldZ, ClientMapData.getScale());
+                }
 
 
                 if (this.mapTexture.getPixels() != null) {
@@ -129,13 +138,12 @@ public class MapScreen extends Screen {
     @Override
     public boolean mouseScrolled(double pMouseX, double pMouseY, double pDelta) {
         double zoomFactor = 1.1;
-        double currentScale = ClientMapData.getScale();
         double newScale;
 
         if (pDelta > 0) {
-            newScale = currentScale / zoomFactor;
+            newScale = ClientMapData.getScale() / zoomFactor;
         } else {
-            newScale = currentScale * zoomFactor;
+            newScale = ClientMapData.getScale() * zoomFactor;
         }
 
         ClientMapData.setScale(newScale);
@@ -169,9 +177,8 @@ public class MapScreen extends Screen {
     @Override
     public boolean mouseDragged(double pMouseX, double pMouseY, int pButton, double pDragX, double pDragY) {
         if (this.isDragging() && pButton == 0) {
-            double scale = ClientMapData.getScale();
-            this.mapOffsetX -= pDragX * scale;
-            this.mapOffsetZ -= pDragY * scale;
+            this.mapOffsetX -= pDragX * ClientMapData.getScale();
+            this.mapOffsetZ -= pDragY * ClientMapData.getScale();
             return true;
         }
         return super.mouseDragged(pMouseX, pMouseY, pButton, pDragX, pDragY);

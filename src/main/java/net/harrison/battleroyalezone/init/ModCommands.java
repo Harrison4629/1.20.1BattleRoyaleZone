@@ -94,7 +94,7 @@ public class ModCommands {
                 )
         );
 
-        dispatcher.register(Commands.literal("pushMap")
+        dispatcher.register(Commands.literal("pushmap")
                 .requires(sourceStack -> sourceStack.hasPermission(2))
                 .then(Commands.argument("player", EntityArgument.player())
                         .executes(context -> {

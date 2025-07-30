@@ -25,16 +25,13 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 @Mod(Battleroyalezone.MODID)
 public class Battleroyalezone {
 
-    public static final int MAP_TEXTURE_SIZE = 256;
     public static final String SCOREBOARD_OBJECTIVE_NAME = "BattleroyaleZone";
-    private static final Component SCOREBOARD_DISPLAY_NAME = Component.translatable("socreboard.battleroyalezone.display_name").withStyle(ChatFormatting.YELLOW);
+    private static final Component SCOREBOARD_DISPLAY_NAME = Component.translatable("socreboard.battleroyalezone.display_name").withStyle(ChatFormatting.AQUA);
 
     public static final String MODID = "battleroyalezone";
 
-    @SuppressWarnings("removal")
     public Battleroyalezone() {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
-
 
 
         modEventBus.addListener(this::commonSetup);

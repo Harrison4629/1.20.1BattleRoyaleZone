@@ -2,6 +2,7 @@ package net.harrison.battleroyalezone.events;
 
 import net.harrison.battleroyalezone.Battleroyalezone;
 import net.harrison.battleroyalezone.events.customEvents.ZoneStageEvent;
+import net.harrison.battleroyalezone.events.customEvents.ZoneStateEnum;
 import net.harrison.battleroyalezone.init.ModMessages;
 import net.harrison.battleroyalezone.networking.s2cpacket.MapReferenceSyncS2CPacket;
 import net.minecraft.world.phys.Vec3;
@@ -19,16 +20,20 @@ public class ZoneMapDataUpdateEvent {
                     Vec3.ZERO,
                     0,
                     0,
-                    true
+                    0,
+                    false,
+                    false
             ));
             return;
         }
 
         ModMessages.sendToAllPlayer(new MapReferenceSyncS2CPacket(
-                event.getCurrentCenter(),
+                event.getPreviousZoneCenter(),
                 event.getNextZoneCenter(),
-                event.getCurrentZoneSize(),
+                event.getPreviousZoneSize(),
                 event.getFutureZoneSize(),
-                false));
+                event.getStateDurationTicks(),
+                event.getState() == ZoneStateEnum.SHRINKING,
+                true));
     }
 }

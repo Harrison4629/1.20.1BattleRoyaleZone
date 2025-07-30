@@ -1,76 +1,64 @@
 package net.harrison.battleroyalezone.events;
 
-import net.harrison.basicdevtool.init.ModMessages;
-import net.harrison.basicdevtool.networking.s2cpacket.PlaySoundToClientS2CPacket;
 import net.harrison.battleroyalezone.Battleroyalezone;
 import net.harrison.battleroyalezone.data.ZoneData;
 import net.harrison.battleroyalezone.events.customEvents.ZoneStageEvent;
 import net.harrison.battleroyalezone.events.customEvents.ZoneStateEnum;
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
 @Mod.EventBusSubscriber(modid = Battleroyalezone.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class AlarmUpdateEvent {
 
-    private static boolean hasBroadcastedWARNING = false;
-    private static boolean hasBroadcastedSHRINK = false;
-
     @SubscribeEvent
     public static void onZoneStage(ZoneStageEvent event) {
-
         ZoneStateEnum state =  event.getState();
 
         if (!event.getRunningState()){
             return;
         }
 
+        MinecraftServer server = event.getServer();
+        if (server == null) {
+            return;
+        }
+
         switch (state) {
-            case IDLE:
-                hasBroadcastedSHRINK = false;
-                hasBroadcastedWARNING = false;
-                break;
 
             case WARNING:
-                broadcastWarning(event);
+                broadcastWarning(server, event.getStage());
                 break;
 
             case SHRINKING:
-                broadcastShrinking(event);
+                broadcastShrinking(server);
                 break;
+            case IDLE:
 
             default:
                 break;
         }
     }
 
-    private static void broadcastWarning(ZoneStageEvent event) {
-        if (hasBroadcastedWARNING) {
-            return;
+    private static void broadcastWarning(MinecraftServer server, int stage) {
+        server.getPlayerList().broadcastSystemMessage(Component.translatable("message.battleroyalezone.zone_will_shrink_into",
+                ZoneData.getWarningTick(stage) / 20, ZoneData.getZoneSize(stage)).withStyle(ChatFormatting.GOLD),
+                false);
+        for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+            player.playNotifySound(SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.NEUTRAL, 1.0F, 1.0F);
         }
-
-        event.getServer().getPlayerList().broadcastSystemMessage(Component.literal( "毒圈将在" + ZoneData.getWarningTick(event.getStage()) / 20 + "秒后缩小至"
-                + ZoneData.getZoneSize(event.getStage()) + "格大小"), true);
-        for (ServerPlayer player : event.getServer().getPlayerList().getPlayers()) {
-            ModMessages.sendToPlayer(new PlaySoundToClientS2CPacket(SoundEvents.EXPERIENCE_ORB_PICKUP, 1.5F, 1.0F), player);
-        }
-
-        hasBroadcastedWARNING = true;
     }
 
-    private static void broadcastShrinking(ZoneStageEvent event) {
-        if (hasBroadcastedSHRINK) {
-            return;
+    private static void broadcastShrinking(MinecraftServer server) {
+        server.getPlayerList().broadcastSystemMessage(Component.translatable("message.battleroyalezone.zone_shrinking")
+                .withStyle(ChatFormatting.RED), false);
+        for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+            player.playNotifySound(SoundEvents.BEACON_ACTIVATE, SoundSource.NEUTRAL, 1.0F, 1.0F);
         }
-
-        event.getServer().getPlayerList().broadcastSystemMessage(Component.literal("毒圈正在收缩!"), true);
-        for (ServerPlayer player : event.getServer().getPlayerList().getPlayers()) {
-            ModMessages.sendToPlayer(new PlaySoundToClientS2CPacket(SoundEvents.BEACON_ACTIVATE, 1.5F, 1.0F), player);
-        }
-
-        hasBroadcastedSHRINK = true;
     }
-
 }

@@ -76,21 +76,21 @@ public class ServerMapData extends SavedData {
     public void pushMapData(ServerPlayer player) {
         Iterator<Map.Entry<Long, Byte>> iterator = mapData.entrySet().iterator();
         Map<Long, Byte> onePacket = Maps.newHashMap();
-        boolean isFirstChunk = true;
+        boolean overWrite = true;
 
         while (iterator.hasNext()) {
             Map.Entry<Long, Byte> entry = iterator.next();
             onePacket.put(entry.getKey(), entry.getValue());
 
             if (onePacket.size() >= PACKET_SIZE) {
-                ModMessages.sendToPlayer(new MapColorSyncS2CPacket(onePacket, isFirstChunk), player);
+                ModMessages.sendToPlayer(new MapColorSyncS2CPacket(onePacket, overWrite, player.level().dimension()), player);
                 onePacket.clear();
-                isFirstChunk = false;
+                overWrite = false;
             }
         }
 
-        if (!onePacket.isEmpty() || isFirstChunk) {
-            ModMessages.sendToPlayer(new MapColorSyncS2CPacket(onePacket, isFirstChunk), player);
+        if (!onePacket.isEmpty() || overWrite) {
+            ModMessages.sendToPlayer(new MapColorSyncS2CPacket(onePacket, overWrite, player.level().dimension()), player);
         }
     }
 

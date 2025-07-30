@@ -37,7 +37,7 @@ public class ZoneTicker {
 
     public static void startZoneSystem(CommandSourceStack source) {
         if (manager == null) {
-            manager = new ZoneManager(server);
+            manager = new ZoneManager(server, source.getLevel());
             manager.start(source.getPosition());
         } else {
             source.sendFailure(Component.translatable("manager.battleroyalezone.start_failed").withStyle(ChatFormatting.RED));

@@ -6,5 +6,7 @@
   "sample.battleroyalezone.start": "",
   "key.category.battleroyalezone": "",
   "key.battleroyalezone.open_map": "",
-  "manager.battleroyalezone.start_failed": ""
+  "manager.battleroyalezone.start_failed": "",
+  "message.battleroyalezone.zone_shrinking": "",
+  "message.battleroyalezone.zone_will_shrink_into": ""
 }

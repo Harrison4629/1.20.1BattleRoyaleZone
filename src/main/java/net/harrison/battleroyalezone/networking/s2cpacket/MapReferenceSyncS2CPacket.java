@@ -1,68 +1,76 @@
 package net.harrison.battleroyalezone.networking.s2cpacket;
 
 import net.harrison.battleroyalezone.data.ClientMapData;
+import net.harrison.battleroyalezone.screen.drawer.NextSafeZoneBorderOverlay;
+import net.harrison.battleroyalezone.screen.drawer.UnsafeZoneOverlay;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.network.NetworkEvent;
+import org.joml.Vector2d;
 
 import java.util.function.Supplier;
 
 public class MapReferenceSyncS2CPacket {
-    private final double zoneCenterX;
-    private final double zoneCenterZ;
-    private final double nextZoneCenterX;
-    private final double nextZoneCenterZ;
-    private final double zoneLength;
-    private final double nextZoneLength;
-    private final boolean reset;
 
-    public MapReferenceSyncS2CPacket(Vec3 zoneCenter, Vec3 nextZoneCenter, double zoneLength, double nextZoneLength, boolean reset) {
-        this.zoneCenterX = zoneCenter.x;
-        this.zoneCenterZ = zoneCenter.z;
-        this.nextZoneCenterX = nextZoneCenter.x;
-        this.nextZoneCenterZ = nextZoneCenter.z;
-        this.zoneLength = zoneLength;
+    private final Vector2d previousZoneCenter;
+    private final Vector2d nextZoneCenter;
+    private final int stateDurationTicks;
+    private final double previousZoneLength;
+    private final double nextZoneLength;
+    private final boolean display;
+    private final boolean isShrinking;
+
+    private static final String NextSafeZoneBorderOverlayTag = "NextSafeZoneBorder";
+    private static final String UnsafeZoneOverlayTag = "UnsafeZone";
+
+
+    public MapReferenceSyncS2CPacket(Vec3 previousZoneCenter, Vec3 nextZoneCenter, double previousZoneLength,
+                                     double nextZoneLength, int stateDurationTicks, boolean isShrinking, boolean display) {
+        this.previousZoneCenter = new Vector2d(previousZoneCenter.x,  previousZoneCenter.z);
+        this.nextZoneCenter = new Vector2d(nextZoneCenter.x,  nextZoneCenter.z);
+        this.previousZoneLength = previousZoneLength;
         this.nextZoneLength = nextZoneLength;
-        this.reset = reset;
+        this.display = display;
+        this.stateDurationTicks =stateDurationTicks;
+        this.isShrinking = isShrinking;
     }
+
 
     public MapReferenceSyncS2CPacket(FriendlyByteBuf buf) {
-        this.zoneCenterX = buf.readDouble();
-        this.zoneCenterZ = buf.readDouble();
-        this.nextZoneCenterX = buf.readDouble();
-        this.nextZoneCenterZ = buf.readDouble();
-        this.zoneLength = buf.readDouble();
+        this.previousZoneCenter = new Vector2d(buf.readDouble(), buf.readDouble());
+        this.nextZoneCenter = new Vector2d(buf.readDouble(), buf.readDouble());
+        this.previousZoneLength = buf.readDouble();
         this.nextZoneLength = buf.readDouble();
-        this.reset = buf.readBoolean();
+        this.stateDurationTicks = buf.readInt();
+        this.display = buf.readBoolean();
+        this.isShrinking = buf.readBoolean();
     }
 
-
     public void toBytes(FriendlyByteBuf buf) {
-        buf.writeDouble(zoneCenterX);
-        buf.writeDouble(zoneCenterZ);
-        buf.writeDouble(nextZoneCenterX);
-        buf.writeDouble(nextZoneCenterZ);
-        buf.writeDouble(zoneLength);
+        buf.writeDouble(previousZoneCenter.x);
+        buf.writeDouble(previousZoneCenter.y);
+        buf.writeDouble(nextZoneCenter.x);
+        buf.writeDouble(nextZoneCenter.y);
+        buf.writeDouble(previousZoneLength);
         buf.writeDouble(nextZoneLength);
-        buf.writeBoolean(reset);
+        buf.writeInt(stateDurationTicks);
+        buf.writeBoolean(display);
+        buf.writeBoolean(isShrinking);
     }
 
     public void handle(Supplier<NetworkEvent.Context> supplier) {
         NetworkEvent.Context context = supplier.get();
         context.enqueueWork(() -> {
-
-            if (reset) {
-                ClientMapData.reset();
+            ClientMapData.clearOverlays();
+            if (display) {
+                ClientMapData.addOverlay(new NextSafeZoneBorderOverlay(nextZoneCenter.x, nextZoneCenter.y, nextZoneLength / 2), NextSafeZoneBorderOverlayTag);
+                ClientMapData.addOverlay(new UnsafeZoneOverlay(), UnsafeZoneOverlayTag);
             } else {
-                ClientMapData.setZoneCenterX(zoneCenterX);
-                ClientMapData.setZoneCenterZ(zoneCenterZ);
-                ClientMapData.setNextZoneCenterX(nextZoneCenterX);
-                ClientMapData.setNextZoneCenterZ(nextZoneCenterZ);
-                ClientMapData.setZoneLength(zoneLength);
-                ClientMapData.setNextZoneLength(nextZoneLength);
+                ClientMapData.clearOverlays();
             }
+            ClientMapData.setManager(previousZoneLength, nextZoneLength, previousZoneCenter,
+                    nextZoneCenter, stateDurationTicks, isShrinking);
         });
         context.setPacketHandled(true);
     }
-
 }

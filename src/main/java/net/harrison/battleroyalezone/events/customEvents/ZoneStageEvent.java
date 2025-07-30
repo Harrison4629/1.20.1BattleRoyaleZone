@@ -2,31 +2,38 @@ package net.harrison.battleroyalezone.events.customEvents;
 
 import net.harrison.battleroyalezone.data.ZoneData;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.eventbus.api.Event;
 
 public class ZoneStageEvent extends Event {
     private final MinecraftServer server;
+    private final Level level;
     private final Vec3 previousZoneCenter;
     private final Vec3 nextZoneCenter;
     private final ZoneStateEnum state;
     private final int stage;
-    private final int stateLeftTicks;
+    private final int stateDurationTicks;
     private final boolean running;
 
-    public ZoneStageEvent(MinecraftServer server, boolean running, Vec3 previousZoneCenter,
-                          Vec3 nextZoneCenter, int stage, ZoneStateEnum state, int stateLeftTicks) {
+    public ZoneStageEvent(MinecraftServer server, Level level, boolean running, Vec3 previousZoneCenter,
+                          Vec3 nextZoneCenter, int stage, ZoneStateEnum state, int stateDurationTicks) {
         this.running = running;
         this.previousZoneCenter = previousZoneCenter;
         this.nextZoneCenter = nextZoneCenter;
         this.stage = stage;
         this.state = state;
-        this.stateLeftTicks = stateLeftTicks;
+        this.stateDurationTicks = stateDurationTicks;
         this.server = server;
+        this.level = level;
     }
 
     public MinecraftServer getServer() {
         return this.server;
+    }
+
+    public Level getLevel() {
+        return this.level;
     }
 
     public Vec3 getPreviousZoneCenter() {
@@ -41,8 +48,8 @@ public class ZoneStageEvent extends Event {
         return this.stage;
     }
 
-    public int getStateLeftTicks() {
-        return this.stateLeftTicks;
+    public int getStateDurationTicks() {
+        return this.stateDurationTicks;
     }
 
     public boolean getRunningState() {
@@ -53,15 +60,8 @@ public class ZoneStageEvent extends Event {
         return this.nextZoneCenter;
     }
 
-    public Vec3 getCurrentCenter() {
-        if (state == ZoneStateEnum.IDLE || state == ZoneStateEnum.WARNING) {
-            return previousZoneCenter;
-        } else {
-            return new Vec3(
-                    interpolate(previousZoneCenter.x, nextZoneCenter.x, stateLeftTicks, ZoneData.getShrinkTick(stage)),
-                    previousZoneCenter.y,
-                    interpolate(previousZoneCenter.z, nextZoneCenter.z, stateLeftTicks, ZoneData.getShrinkTick(stage)));
-        }
+    public double getPreviousZoneSize() {
+        return ZoneData.getZoneSize(stage - 1);
     }
 
     public double getFutureZoneSize() {
@@ -70,29 +70,5 @@ public class ZoneStageEvent extends Event {
         } else {
             return ZoneData.getZoneSize(stage);
         }
-    }
-
-    public double getCurrentZoneSize() {
-        if (stage >= ZoneData.getMaxStage()) {
-            return ZoneData.getZoneSize(ZoneData.getMaxStage() - 1);
-        } else {
-            switch (state) {
-                case IDLE, WARNING -> {
-                    return ZoneData.getZoneSize(stage - 1);
-                }
-                case SHRINKING -> {
-                    return interpolate(ZoneData.getZoneSize(stage - 1), ZoneData.getZoneSize(stage), stateLeftTicks, ZoneData.getShrinkTick(stage));
-                }
-                default -> throw new UnsupportedOperationException("It should not happened!");
-            }
-        }
-    }
-
-    private double interpolate(double start, double end, int ticksLeft, int totalTicks) {
-        if (totalTicks <= 0) {
-            return end;
-        }
-        double t = (double) ticksLeft / totalTicks;
-        return start * t + end * (1.0 - t);
     }
 }
