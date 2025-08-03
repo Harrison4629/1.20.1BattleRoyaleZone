@@ -89,8 +89,6 @@ public class ZoneManager {
     }
 
     public void start(Vec3 startPosition) {
-        if (isRunning) return;
-
         this.stage = 0;
         this.previousZoneCenter = startPosition;
         this.nextZoneCenter = startPosition;

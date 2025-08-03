@@ -17,7 +17,7 @@ public class WorldBorderMixin {
             at = {@At("HEAD")},
             cancellable = true
     )
-    public void mixin_isWithinBounds_0(double p_156094_, double p_156095_, CallbackInfoReturnable<Boolean> cir) {
+    public void mixin_isWithinBounds_0(double x, double z, CallbackInfoReturnable<Boolean> cir) {
         cir.setReturnValue(true);
     }
 
@@ -26,7 +26,7 @@ public class WorldBorderMixin {
             at = {@At("HEAD")},
             cancellable = true
     )
-    public void mixin_isWithinBounds_1(double p_187563_, double p_187564_, double p_187565_, CallbackInfoReturnable<Boolean> cir) {
+    public void mixin_isWithinBounds_1(double x, double z, double offset, CallbackInfoReturnable<Boolean> cir) {
         cir.setReturnValue(true);
     }
 
@@ -35,7 +35,7 @@ public class WorldBorderMixin {
             at = {@At("HEAD")},
             cancellable = true
     )
-    public void mixin_isWithinBounds_2(AABB p_61936_, CallbackInfoReturnable<Boolean> cir) {
+    public void mixin_isWithinBounds_2(AABB aabb, CallbackInfoReturnable<Boolean> cir) {
         cir.setReturnValue(true);
     }
 
@@ -44,7 +44,7 @@ public class WorldBorderMixin {
             at = {@At("HEAD")},
             cancellable = true
     )
-    public void mixin_isWithinBounds_3(BlockPos p_61938_, CallbackInfoReturnable<Boolean> cir) {
+    public void mixin_isWithinBounds_3(BlockPos blockPos, CallbackInfoReturnable<Boolean> cir) {
         cir.setReturnValue(true);
     }
 
@@ -53,7 +53,7 @@ public class WorldBorderMixin {
             at = {@At("HEAD")},
             cancellable = true
     )
-    public void mixin_isWithinBounds_4(ChunkPos p_61928_, CallbackInfoReturnable<Boolean> cir) {
+    public void mixin_isWithinBounds_4(ChunkPos chunkPos, CallbackInfoReturnable<Boolean> cir) {
         cir.setReturnValue(true);
     }
 
@@ -62,7 +62,7 @@ public class WorldBorderMixin {
             at = {@At("HEAD")},
             cancellable = true
     )
-    public void mixin_isInsideCloseToBorder(Entity p_187567_, AABB p_187568_, CallbackInfoReturnable<Boolean> cir) {
+    public void mixin_isInsideCloseToBorder(Entity entity, AABB aabb, CallbackInfoReturnable<Boolean> cir) {
         cir.setReturnValue(false);
     }
 }

@@ -1,9 +1,7 @@
 package net.harrison.battleroyalezone.events;
 
 import net.harrison.battleroyalezone.Battleroyalezone;
-import net.harrison.battleroyalezone.data.ZoneData;
 import net.harrison.battleroyalezone.events.customEvents.ZoneStageEvent;
-import net.harrison.battleroyalezone.events.customEvents.ZoneStateEnum;
 import net.harrison.battleroyalezone.manager.LerpManager;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.scores.Objective;
@@ -43,14 +41,12 @@ public class ScoreBoardUpdateEvent {
             return;
         }
 
-
-
         Scoreboard scoreboard = event.getLevel().getScoreboard();
 
         objective = scoreboard.getObjective(Battleroyalezone.SCOREBOARD_OBJECTIVE_NAME);
 
-        if (event.getState() == ZoneStateEnum.IDLE && event.getStage() == ZoneData.getMaxStage()) {
-            clearScore(event.getLevel().getScoreboard(), objective);
+        if (event.isFinalZone()) {
+            clearScore(scoreboard, objective);
             return;
         }
 

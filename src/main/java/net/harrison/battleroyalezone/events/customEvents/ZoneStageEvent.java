@@ -71,4 +71,8 @@ public class ZoneStageEvent extends Event {
             return ZoneData.getZoneSize(stage);
         }
     }
+
+    public boolean isFinalZone() {
+        return stage == ZoneData.getMaxStage();
+    }
 }

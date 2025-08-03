@@ -36,7 +36,6 @@ public class ZoneWorldBorderUpdateEvent {
         }
 
         if (event.getState() == ZoneStateEnum.SHRINKING) {
-
             level.getWorldBorder().lerpSizeBetween(
                     ZoneData.getZoneSize(event.getStage() - 1),
                     ZoneData.getZoneSize(Math.min(event.getStage(), ZoneData.getMaxStage() - 1)),
